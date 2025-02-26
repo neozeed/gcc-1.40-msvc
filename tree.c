@@ -38,6 +38,7 @@ the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
 #include "obstack.h"
 #include "gvarargs.h"
 #include "flags.h"
+#include "varargs.h"
 
 #define obstack_chunk_alloc xmalloc
 #define obstack_chunk_free free

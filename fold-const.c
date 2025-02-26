@@ -38,9 +38,10 @@ the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
    and returns the result of the specified operation on those values,
    also as a tree.  */
    
+
+#include "config.h"
 #include <stdio.h>
 #include <setjmp.h>
-#include "config.h"
 #include "tree.h"
 
 static void lshift_double ();

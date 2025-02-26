@@ -125,12 +125,27 @@ position among the other output files.
 #include <stdio.h>
 #include <sys/types.h>
 #include <signal.h>
-#include <sys/file.h>
-#include <sys/stat.h>
+//#include <sys/file.h>
+#define  __TURBOC__ 1
+#ifdef __TURBOC__
+#include <process.h>
+#include <errno.h>
+#include <stdlib.h>
+#define R_OK 4
+#define W_OK 2
+#define X_OK 1
+#define bcopy(a,b,c) memcpy (b,a,c)
+#define bzero(a,b) memset (a,0,b)
+#define bcmp(a,b,c) memcmp (a,b,c)
+#endif
 
 #include "config.h"
 #include "obstack.h"
+#ifdef __TURBOC__
+#include <stdarg.h>
+#else
 #include "gvarargs.h"
+#endif
 
 #ifdef USG
 #ifndef R_OK
@@ -386,7 +401,9 @@ store_arg (arg, delete_always, delete_failure)
      int delete_always, delete_failure;
 {
   if (argbuf_index + 1 == argbuf_length)
-    argbuf = (char **) xrealloc (argbuf, (argbuf_length *= 2) * sizeof (char *));
+    {
+      argbuf = (char **) realloc (argbuf, (argbuf_length *= 2) * sizeof (char *));
+    }
 
   argbuf[argbuf_index++] = arg;
   argbuf[argbuf_index] = 0;
@@ -489,15 +506,9 @@ delete_temp_files ()
       if (i == 'y' || i == 'Y')
 #endif /* DEBUG */
 	{
-	  struct stat st;
-	  if (stat (temp->name, &st) >= 0)
-	    {
-	      /* Delete only ordinary files.  */
-	      if ((st.st_mode & S_IFMT) == S_IFREG)
-		if (unlink (temp->name) < 0)
-		  if (vflag)
-		    perror_with_name (temp->name);
-	    }
+	  if (unlink (temp->name) < 0)
+	    if (vflag)
+	      perror_with_name (temp->name);
 	}
     }
 
@@ -542,9 +553,31 @@ clear_failure_queue ()
 void
 choose_temp_base ()
 {
-  extern char *getenv ();
+  //extern char *getenv ();
+#ifndef __TURBOC__
   char *base = getenv ("TMPDIR");
   int len;
+#else
+  char *base = 0;
+  int len;
+  char *bp;
+
+  /* GNUDOS: check GNUTMP and TMP/TEMP environment variables */
+  if (base == (char *)0) base = getenv("GCCTMP");
+  if (base == (char *)0) base = getenv("TMP");
+  if (base == (char *)0) base = getenv("TEMP");
+  if (base == (char *)0) base = getenv("TMPDIR");
+  if (base == (char *)0) base = "./";
+  for (bp=base; *bp; bp++)
+    if (*bp == '\\') *bp = '/';
+  if (bp[-1] != '/')
+  {
+    bp = (char *)malloc(strlen(base)+2);
+    strcpy(bp, base);
+    strcat(bp, "/");
+    base = bp;
+  }
+#endif
 
   if (base == (char *)0)
     {
@@ -569,6 +602,9 @@ choose_temp_base ()
   strcpy (temp_filename + len, "ccXXXXXX");
 
   mktemp (temp_filename);
+#ifdef __TURBOC__ /* GNUDOS: use ccXX_XXX.??? - turbo uses ccXX.XXX */
+  temp_filename[strlen(temp_filename)-4] = '_';
+#endif
   temp_filename_length = strlen (temp_filename);
 }
 
@@ -694,6 +730,9 @@ int last_pipe_input;
    NOT_LAST is nonzero if this is not the last subcommand
    (i.e. its output should be piped to the next one.)  */
 
+/* GNUDOS: set up response file, spawn process and wait for it to come
+   back.  No pipe support. */
+
 static int
 pexecute (func, program, argv, not_last)
      char *program;
@@ -705,6 +744,45 @@ pexecute (func, program, argv, not_last)
   int pdes[2];
   int input_desc = last_pipe_input;
   int output_desc = STDOUT_FILE_NO;
+#ifdef __TURBOC__
+  int i;
+  char *newargv[3];
+  FILE *parm_f;
+  char PARM_FILE[512];
+  char APARM_FILE[512];
+
+  char *s = alloca(strlen(program)+5);
+  strcpy(s, program);
+
+  sprintf(PARM_FILE, "%s.gp", temp_filename);
+
+  parm_f = fopen(PARM_FILE, "w");
+  if (parm_f == NULL)
+  {
+    pid = (*func)(P_WAIT, s, argv);
+  }
+  else
+  {
+    for (i=1; argv[i]; i++)
+    {
+      fputs(argv[i], parm_f);
+      fputc('\n', parm_f);
+    }
+    fclose(parm_f);
+    newargv[0] = argv[0];
+    sprintf(APARM_FILE, "@%s.gp", temp_filename);
+    newargv[1] = APARM_FILE;
+    newargv[2] = 0;
+    //pid = (*func)(P_WAIT, s, newargv);
+    pid = (*func)(P_WAIT, s, argv);
+    unlink(PARM_FILE);
+  }
+  if (pid == -1)
+    return errno;
+  return pid << 8;
+
+#else /* ifdef __TURBOC__ */
+
 
   /* If this isn't the last process, make a pipe for its output,
      and record it as waiting to be the input to the next process.  */
@@ -763,6 +841,7 @@ pexecute (func, program, argv, not_last)
       /* Return child's process number.  */
       return pid;
     }
+#endif /* ifdef __TURBOC__ */
 }
 
 /* Execute the command specified by the arguments on the current line of spec.
@@ -856,7 +935,11 @@ execute ()
       extern int execv(), execvp();
       char *string = commands[i].argv[0];
 
+#ifdef __TURBOC__
+      commands[i].pid = pexecute ((string != commands[i].prog ? spawnv : spawnvp),
+#else
       commands[i].pid = pexecute ((string != commands[i].prog ? execv : execvp),
+#endif
 				  string, commands[i].argv,
 				  i + 1 < n_commands);
 
@@ -879,9 +962,13 @@ execute ()
 	int pid;
 	char *prog;
 
+#ifdef __TURBOC__
+        pid = status = commands[0].pid;
+#else
 	pid = wait (&status);
 	if (pid < 0)
 	  abort ();
+#endif
 
 	if (status != 0)
 	  {
@@ -937,10 +1024,30 @@ process_command (argc, argv)
      int argc;
      char **argv;
 {
-  extern char *getenv ();
+  //extern char *getenv ();
   register int i;
   n_switches = 0;
   n_infiles = 0;
+
+#ifdef __TURBOC__
+  /* GNUDOS: use the GCC variable first */
+  env_exec_prefix = getenv("GCCBIN");
+  if (env_exec_prefix)
+  {
+    char *cp;
+    for (cp=env_exec_prefix; *cp; cp++)
+      if (*cp == '\\') *cp = '/';
+    if (cp[-1] != '/')
+    {
+      cp = (char *)malloc(strlen(env_exec_prefix)+2);
+      strcpy(cp, env_exec_prefix);
+      strcat(cp, "/");
+      env_exec_prefix = cp;
+    }
+  }
+
+  if (env_exec_prefix == 0)
+#endif
 
   env_exec_prefix = getenv ("GCC_EXEC_PREFIX");
 
@@ -951,7 +1058,7 @@ process_command (argc, argv)
   for (i = 1; i < argc; i++)
     {
       if (argv[i][0] == '-' && argv[i][1] != 'l')
-	{
+      {
 	  register char *p = &argv[i][1];
 	  register int c = *p;
 
@@ -1697,7 +1804,9 @@ fatal_error (signum)
   delete_temp_files ();
   /* Get the same signal again, this time not handled,
      so its normal effect occurs.  */
+#ifndef __TURBOC__
   kill (getpid (), signum);
+#endif
 }
 
 int
@@ -1711,8 +1820,35 @@ main (argc, argv)
   int linker_was_run = 0;
   char *explicit_link_files;
 
+#ifdef __TURBOC__
+  /* GNUDOS: use GCCLIB variable, handle response files */
+  char *env_lib_path;
+
+  new_argc_argv(&argc, &argv);
+#endif
+
   programname = argv[0];
 
+#ifdef __TURBOC__
+  /* GNUDOS: use GCCLIB variable to locate crt0.o */
+  env_lib_path = getenv("GCCLIB");
+  if (env_lib_path)
+  {
+    char *cp;
+    for (cp=env_lib_path; *cp; cp++)
+      if (*cp == '\\') *cp = '/';
+    if (cp[-1] != '/')
+    {
+      standard_startfile_prefix = (char *)malloc(strlen(env_lib_path)+2);
+      strcpy(standard_startfile_prefix, env_lib_path);
+      strcat(standard_startfile_prefix, "/");
+    }
+    standard_startfile_prefix_1 =
+    standard_startfile_prefix_2 = standard_startfile_prefix;
+  }
+#endif
+
+#ifndef __TURBOC__
   if (signal (SIGINT, SIG_IGN) != SIG_IGN)
     signal (SIGINT, fatal_error);
   if (signal (SIGHUP, SIG_IGN) != SIG_IGN)
@@ -1721,6 +1857,7 @@ main (argc, argv)
     signal (SIGTERM, fatal_error);
   if (signal (SIGPIPE, SIG_IGN) != SIG_IGN)
     signal (SIGPIPE, fatal_error);
+#endif
 
   argbuf_length = 10;
   argbuf = (char **) xmalloc (argbuf_length * sizeof (char *));

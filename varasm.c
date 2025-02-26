@@ -25,10 +25,10 @@ the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
    We also output the assembler code for constants stored in memory
    and are responsible for combining constants with the same value.  */
 
+#include "config.h"
 #include <stdio.h>
 #include <setjmp.h>
 /* #include <stab.h> */
-#include "config.h"
 #include "rtl.h"
 #include "tree.h"
 #include "flags.h"

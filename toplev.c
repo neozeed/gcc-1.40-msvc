@@ -23,26 +23,29 @@ the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
    in the proper order, and counts the time used by each.
    Error messages and low-level interface to malloc also handled here.  */
 
-#include "config.h"
-#include <sys/types.h>
 #include <stdio.h>
 #include <signal.h>
+#include "_setjmp.h"	/*hihgly suspect*/
 #include <setjmp.h>
-
+#include <sys/types.h>
 #include <sys/stat.h>
+#include "config.h"
 
+
+#ifndef _MSVC
 #ifdef USG
 #undef FLOAT
 #include <sys/param.h>
 /* This is for hpux.  It is a real screw.  They should change hpux.  */
 #undef FLOAT
-#include <sys/times.h>
+//#include <sys/times.h>
 #include <time.h>   /* Correct for hpux at least.  Is it good on other USG?  */
 #undef FFS  /* Some systems define this in param.h.  */
 #else
 #ifndef VMS
 #include <sys/time.h>
-#include <sys/resource.h>
+//#include <sys/resource.h>
+#endif
 #endif
 #endif
 
@@ -377,7 +380,7 @@ int
 gettime ()
 {
 #ifdef USG
-  struct tms tms;
+  //struct tms tms;
 #else
 #ifndef VMS
   struct rusage rusage;
@@ -396,8 +399,9 @@ gettime ()
     return 0;
 
 #ifdef USG
-  times (&tms);
-  return (tms.tms_utime + tms.tms_stime) * (1000000 / HZ);
+  //times (&tms);
+  //return (tms.tms_utime + tms.tms_stime) * (1000000 / HZ);
+  return (1.0);	//HACK
 #else
 #ifndef VMS
   getrusage (0, &rusage);
@@ -1765,9 +1769,9 @@ main (argc, argv, envp)
   }
 #endif /* RLIMIT_STACK */
 
-  signal (SIGFPE, float_signal);
+  //signal (SIGFPE, float_signal);
 
-  signal (SIGPIPE, pipe_closed);
+  //signal (SIGPIPE, pipe_closed);
 
   /* Initialize whether `char' is signed.  */
   flag_signed_char = DEFAULT_SIGNED_CHAR;

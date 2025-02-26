@@ -27,7 +27,8 @@ the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
 #include "rtl.h"
 #include <stdio.h>
 
-#if defined(USG) && !defined(MIPS_DEBUGGING_INFO)
+#if 0
+//#if defined(USG) && !defined(MIPS_DEBUGGING_INFO)
 #include <syms.h>
 /* #include <storclass.h>  used to be this instead of syms.h.  */
 

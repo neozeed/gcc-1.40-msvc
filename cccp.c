@@ -1,3 +1,10 @@
+#ifndef GCC_INCLUDE_DIR
+#define GCC_INCLUDE_DIR "/xenixnt/h"
+#endif
+#ifndef GPLUSPLUS_INCLUDE_DIR
+#define GPLUSPLUS_INCLUDE_DIR "/xenixnt/h"
+#endif 
+
 /* C Compatible Compiler Preprocessor (CCCP)
 Copyright (C) 1986, 1987, 1989 Free Software Foundation, Inc.
                     Written by Paul Rubin, June 1986
@@ -23,6 +30,24 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 typedef unsigned char U_CHAR;
 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <io.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+/* why do I need to do this?! wtf?! */
+#define close _close
+#define fileno _fileno
+#define fstat _fstat
+#define open _open
+#define read _read
+#define write _write
+
+
 #ifdef EMACS
 #define NO_SHORTNAMES
 #include "../src/config.h"
@@ -37,27 +62,19 @@ typedef unsigned char U_CHAR;
 #include "config.h"
 #endif /* not EMACS */
 
-#ifndef CC_INCLUDE_DIR
-#define CC_INCLUDE_DIR "/usr/include"
-#endif
-
-#ifndef STDC_VALUE
-#define STDC_VALUE 1
-#endif
-
 /* In case config.h defines these.  */
 #undef bcopy
 #undef bzero
 #undef bcmp
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <signal.h>
+//#include <sys/types.h>
+//#include <sys/stat.h>
+//#include <ctype.h>
+//#include <stdio.h>
+//#include <signal.h>
 
 #ifndef VMS
-#include <sys/file.h>
+//#include <sys/file.h>
 #ifndef USG
 #include <sys/time.h>		/* for __DATE__ and __TIME__ */
 #include <sys/resource.h>
@@ -83,15 +100,10 @@ typedef unsigned char U_CHAR;
 #endif /* __GNUC__ */
 #endif /* VMS */
 
-#ifndef O_RDONLY
-#define O_RDONLY 0
-#endif 
+#undef NULL
+#define NULL 0
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
-
-#ifndef S_ISREG
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#endif
 
 /* External declarations.  */
 
@@ -185,10 +197,6 @@ int dump_macros;
 
 int pedantic;
 
-/* Nonzero means don't print warning messages.  -w.  */
-
-int inhibit_warnings = 0;
-
 /* Nonzero means warn if slash-star appears in a comment.  */
 
 int warn_comments;
@@ -273,13 +281,12 @@ struct file_name_list include_defaults[] =
   {
 #ifndef VMS
     { &include_defaults[1], GCC_INCLUDE_DIR },
-    { &include_defaults[2], CC_INCLUDE_DIR },
+    { &include_defaults[2], "/usr/include" },
     { 0, "/usr/local/include" }
 #else
     { &include_defaults[1], "GNU_CC_INCLUDE:" },       /* GNU includes */
     { &include_defaults[2], "SYS$SYSROOT:[SYSLIB.]" }, /* VAX-11 "C" includes */
-    { 0, "." }	/* This makes normal VMS filespecs work OK. The "." forces */
-		/* the file through hack_vms_include_specification */
+    { 0, "" },	/* This makes normal VMS filespecs work OK */
 #endif /* VMS */
   };
 
@@ -291,13 +298,13 @@ struct file_name_list cplusplus_include_defaults[] =
     { &cplusplus_include_defaults[1], GPLUSPLUS_INCLUDE_DIR },
     /* Use GNU CC specific header files.  */
     { &cplusplus_include_defaults[2], GCC_INCLUDE_DIR },
-    { 0, CC_INCLUDE_DIR }
+    { 0, "/usr/include" }
 #else
     { &cplusplus_include_defaults[1], "GNU_GXX_INCLUDE:" },
     { &cplusplus_include_defaults[2], "GNU_CC_INCLUDE:" },
     /* VAX-11 C includes */
     { &cplusplus_include_defaults[3], "SYS$SYSROOT:[SYSLIB.]" },
-    { 0, "." }	/* This makes normal VMS filespecs work OK */
+    { 0, "" },	/* This makes normal VMS filespecs work OK */
 #endif /* VMS */
   };
 
@@ -609,7 +616,7 @@ main (argc, argv)
   cplusplus = 1;
 #endif
 
-  signal (SIGPIPE, pipe_closed);
+//  signal (SIGPIPE, pipe_closed);
 
 #ifndef VMS
   max_include_len
@@ -672,10 +679,6 @@ main (argc, argv)
 
       case '+':
 	cplusplus = 1;
-	break;
-
-      case 'w':
-	inhibit_warnings = 1;
 	break;
 
       case 'W':
@@ -960,8 +963,7 @@ main (argc, argv)
       }
       /* Output P, but remove known suffixes.  */
       len = strlen (p);
-      if (p[len - 2] == '.'
-	  && (p[len - 1] == 'c' || p[len - 1] == 'C' || p[len - 1] == 'S'))
+      if (p[len - 2] == '.' && (p[len - 1] == 'c' || p[len - 1] == 'C'))
 	deps_output (p, len - 2);
       else if (p[len - 3] == '.'
 	       && p[len - 2] == 'c'
@@ -980,7 +982,7 @@ main (argc, argv)
   fp->fname = in_fname;
   fp->lineno = 1;
   /* JF all this is mine about reading pipes and ttys */
-  if (!S_ISREG (st_mode)) {
+  if ((st_mode & S_IFMT) != S_IFREG) {
     /* Read input from a file that is not a normal disk file.
        We cannot preallocate a buffer with the correct size,
        so we must read in the file a piece at the time and make it bigger.  */
@@ -1173,7 +1175,7 @@ newline_fix (bp)
 
   p = bp + count * 2;
 
-  /* Exit if what follows the backslash-newlines is not embarrassing.  */
+  /* What follows the backslash-newlines is not embarrassing.  */
 
   if (count == 0 || (*p != '/' && *p != '*'))
     return;
@@ -1385,13 +1387,15 @@ do { ip = &instack[indepth];		\
 	    bp++;
 	  else if (*bp == '\\' && bp[1] == '\n')
 	    bp += 2;
-	  else if (*bp == '/' && (newline_fix (bp + 1), bp[1]) == '*') {
+	  else if (*bp == '/' && bp[1] == '*') {
 	    bp += 2;
-	    while (!(*bp == '*' && (newline_fix (bp + 1), bp[1]) == '/'))
+	    while (!(*bp == '*' && bp[1] == '/'))
 	      bp++;
-	    bp += 1;
+	    bp += 2;
 	  }
-	  else if (cplusplus && *bp == '/' && (newline_fix (bp + 1), bp[1]) == '/') {
+//	  else if (cplusplus && *bp == '/' && bp[1] == '/') {
+//	The secret is that C++ comments are always on.
+	  else if (*bp == '/' && bp[1] == '/') {
 	    bp += 2;
 	    while (*bp++ != '\n') ;
 	  }
@@ -1515,14 +1519,9 @@ do { ip = &instack[indepth];		\
     case '/':
       if (*ibp == '\\' && ibp[1] == '\n')
 	newline_fix (ibp);
-      /* Don't look for comments inside a macro definition.  */
-      if (ip->macro != 0)
-	goto randomchar;
-      /* A comment constitutes white space, so it can terminate an identifier.
-	 Process the identifier, if any.  */
-      if (ident_length)
-	goto specialchar;
-      if (cplusplus && *ibp == '/') {
+//	The secret is that C++ comments are always on.
+//      if (cplusplus && *ibp == '/') {
+      if (*ibp == '/') {
 	/* C++ style comment... */
 	start_line = ip->lineno;
 
@@ -1541,10 +1540,7 @@ do { ip = &instack[indepth];		\
 	  U_CHAR *before_bp = ibp+2;
 
 	  while (ibp < limit) {
-	    if (*ibp == '\\' && ibp[1] == '\n') {
-	      ip->lineno++;
-	      ibp += 2;
-	    } else if (*ibp++ == '\n') {
+	    if (*ibp++ == '\n') {
 	      ibp--;
 	      if (put_out_comments) {
 		bcopy (before_bp, obp, ibp - before_bp);
@@ -1558,6 +1554,10 @@ do { ip = &instack[indepth];		\
       }
       if (*ibp != '*')
 	goto randomchar;
+      if (ip->macro != 0)
+	goto randomchar;
+      if (ident_length)
+	goto specialchar;
 
       /* We have a comment.  Skip it, optionally copying it to output.  */
 
@@ -1632,10 +1632,6 @@ do { ip = &instack[indepth];		\
 
       if (ident_length == 0) {
 	while (ibp < limit) {
-	  while (ibp < limit && ibp[0] == '\\' && ibp[1] == '\n') {
-	    ++ip->lineno;
-	    ibp += 2;
-	  }
 	  c = *ibp++;
 	  if (!isalnum (c) && c != '.' && c != '_') {
 	    --ibp;
@@ -1645,10 +1641,6 @@ do { ip = &instack[indepth];		\
 	  /* A sign can be part of a preprocessing number
 	     if it follows an e.  */
 	  if (c == 'e' || c == 'E') {
-	    while (ibp < limit && ibp[0] == '\\' && ibp[1] == '\n') {
-	      ++ip->lineno;
-	      ibp += 2;
-	    }
 	    if (ibp < limit && (*ibp == '+' || *ibp == '-')) {
 	      *obp++ = *ibp++;
 	      /* But traditional C does not let the token go past the sign.  */
@@ -2104,7 +2096,7 @@ handle_directive (ip, op)
   while (1) {
     if (is_hor_space[*bp])
       bp++;
-    else if (*bp == '/' && (newline_fix (bp + 1), bp[1]) == '*') {
+    else if (*bp == '/' && bp[1] == '*') {
       ip->bufp = bp;
       skip_to_end_of_comment (ip, &ip->lineno);
       bp = ip->bufp;
@@ -2135,7 +2127,7 @@ handle_directive (ip, op)
 
   /* A line of just `#' becomes blank.  */
 
-  if (ident_length == 0 && *after_ident == '\n') {
+  if (traditional && ident_length == 0 && *after_ident == '\n') {
     ip->bufp = after_ident;
     return 1;
   }
@@ -2257,10 +2249,7 @@ handle_directive (ip, op)
 	      break;
 	    while (xp < bp && c != '>') {
 	      c = *xp++;
-	      if (c == '\\' && xp < bp && *xp == '\n')
-		xp++, ip->lineno++;
-	      else
-		*cp++ = c;
+	      *cp++ = c;
 	    }
 	    break;
 
@@ -2363,7 +2352,7 @@ special_symbol (hp, op)
      FILE_BUF *op;
 {
   char *buf;
-  time_t t;
+  long t;
   int i, len;
   int true_indepth;
   FILE_BUF *ip = NULL;
@@ -2728,7 +2717,7 @@ finclude (f, fname, op)
   fp->lineno = 1;
   fp->if_stack = if_stack;
 
-  if (S_ISREG (st_mode)) {
+  if (st_mode & S_IFREG) {
     fp->buf = (U_CHAR *) alloca (st_size + 2);
     fp->bufp = fp->buf;
 
@@ -2856,9 +2845,6 @@ do_define (buf, limit, op, keyword)
     bcopy (symname, msg, sym_length);
     msg[sym_length] = 0;
     error ("invalid macro name `%s'", msg);
-  } else {
-    if (! strncmp (symname, "defined", 7) && sym_length == 7)
-      error ("defining `defined' as a macro");
   }
 
   /* lossage will occur if identifiers or control keywords are broken
@@ -3112,11 +3098,6 @@ collect_expansion (buf, end, nargs, arglist)
     *exp_p++ = *p++;
   }
 
-  if (p + 1 < limit && p[0] == '#' && p[1] == '#') {
-    error ("## operator at start of macro definition");
-    p += 2;
-  }
-
   /* Process the main body of the definition.  */
   while (p < limit) {
     int skipped_arg = 0;
@@ -3164,15 +3145,13 @@ collect_expansion (buf, end, nargs, arglist)
 	  /* Discard following whitespace.  */
 	  SKIP_WHITE_SPACE (p);
 	  concat = p;
-	  if (limit <= p)
-	    error ("## operator at end of macro definition");
 	} else {
 	  /* Single #: stringify following argument ref.
 	     Don't leave the # in the expansion.  */
 	  exp_p--;
 	  SKIP_WHITE_SPACE (p);
 	  if (p == limit || ! is_idstart[*p] || nargs <= 0)
-	    error ("# operator should be followed by a macro argument name");
+	    error ("# operator should be followed by a macro argument name\n");
 	  else
 	    stringify = p;
 	}
@@ -3213,10 +3192,8 @@ collect_expansion (buf, end, nargs, arglist)
 	  p += 1;
 	  while (p < limit && !(p[-2] == '*' && p[-1] == '/'))
 	    p++;
-#if 0
 	  /* Mark this as a concatenation-point, as if it had been ##.  */
 	  concat = p;
-#endif
 	}
 	break;
       }
@@ -3276,7 +3253,7 @@ collect_expansion (buf, end, nargs, arglist)
 	while (p != lim1)
 	  *exp_p++ = *p++;
 	if (stringify == id_beg)
-	  error ("# operator should be followed by a macro argument name");
+	  error ("# operator should be followed by a macro argument name\n");
       }
     }
   }
@@ -3347,14 +3324,11 @@ do_line (buf, limit, op, keyword)
   /* skip over the line number.  */
   while (isdigit (*bp))
     bp++;
-
-#if 0 /* #line 10"foo.c" is supposed to be allowed.  */
   if (*bp && !is_space[*bp]) {
     error ("invalid format #line command");
     return;
   }
-#endif
-
+    
   SKIP_WHITE_SPACE (bp);
 
   if (*bp == '\"') {
@@ -3436,12 +3410,9 @@ do_undef (buf, limit, op, keyword)
 
   SKIP_WHITE_SPACE (buf);
 
-  if (! strncmp (buf, "defined", 7) && ! is_idchar[buf[7]])
-    warning ("undefining `defined'");
-
   while ((hp = lookup (buf, -1, -1)) != NULL) {
     if (hp->type != T_MACRO)
-      warning ("undefining `%s'", hp->name);
+      error ("undefining `%s'", hp->name);
     delete_macro (hp);
   }
 }
@@ -4005,10 +3976,6 @@ skip_to_end_of_comment (ip, line_counter)
     if (output)
       *op->bufp++ = *bp;
     switch (*bp++) {
-    case '/':
-      if (warn_comments && bp < limit && *bp == '*')
-	warning("`/*' within comment");
-      break;
     case '\n':
       if (line_counter != NULL)
 	++*line_counter;
@@ -4294,7 +4261,7 @@ macroexpand (hp, op)
       for (ap = defn->pattern; ap != NULL; ap = ap->next) {
 	if (ap->stringify)
 	  xbuf_len += args[ap->argno].stringified_length;
-	else if (ap->raw_before || ap->raw_after || traditional)
+	else if (ap->raw_before || ap->raw_after)
 	  xbuf_len += args[ap->argno].raw_length;
 	else
 	  xbuf_len += args[ap->argno].expand_length;
@@ -4341,9 +4308,7 @@ macroexpand (hp, op)
 	    /* Internal sequences of whitespace are replaced by one space.  */
 	    if (c == '\n' ? arg->raw[i+1] == '\n' : is_space[c]) {
 	      while (1) {
-		/* Note that Newline Space does occur within whitespace
-		   sequences; consider it part of the sequence.  */
-		if (c == '\n' && is_space[arg->raw[i+1]])
+		if (c == '\n' && arg->raw[i+1] == '\n')
 		  i += 2;
 		else if (c != '\n' && is_space[c])
 		  i++;
@@ -4359,10 +4324,9 @@ macroexpand (hp, op)
 	    else {
 	      if (c == '\\')
 		escaped = 1;
-	      if (in_string) {
-		if (c == in_string)
-		  in_string = 0;
-	      } else if (c == '\"' || c == '\'')
+	      if (in_string && c == in_string)
+		in_string = 0;
+	      else if (c == '\"' || c == '\'')
 		in_string = c;
 	    }
 
@@ -4378,10 +4342,9 @@ macroexpand (hp, op)
 	  }
 	  if (!traditional)
 	    xbuf[totlen++] = '\"'; /* insert ending quote */
-	} else if (ap->raw_before || ap->raw_after || traditional) {
+	} else if (ap->raw_before || ap->raw_after) {
 	  U_CHAR *p1 = arg->raw;
 	  U_CHAR *l1 = p1 + arg->raw_length;
-
 	  if (ap->raw_before) {
 	    while (p1 != l1 && is_space[*p1]) p1++;
 	    while (p1 != l1 && is_idchar[*p1])
@@ -4515,8 +4478,7 @@ macarg (argptr)
 	return "unterminated macro call";
       }
       ip->macro->type = T_MACRO;
-      if (ip->free_ptr)
-	free (ip->free_ptr);
+      free (ip->buf);
       ip = &instack[--indepth];
       newlines = 0;
       comments = 0;
@@ -4574,19 +4536,16 @@ macarg (argptr)
     buf = argptr->raw;
     lim = buf + argptr->raw_length;
 
-    /* If ANSI, discard leading and trailing space.  */
-    if (!traditional) {
-      while (buf != lim && is_space[*buf])
-	buf++;
-      while (buf != lim && is_space[lim[-1]])
-	lim--;
-    }
+    while (buf != lim && is_space[*buf])
+      buf++;
+    while (buf != lim && is_space[lim[-1]])
+      lim--;
     totlen = traditional ? 0 : 2;	/* Count opening and closing quote.  */
     while (buf != lim) {
       register U_CHAR c = *buf++;
       totlen++;
-      /* If ANSI, replace internal sequences of whitespace with one space.  */
-      if (is_space[c] && !traditional)
+      /* Internal sequences of whitespace are replaced by one space.  */
+      if (is_space[c])
 	SKIP_ALL_WHITE_SPACE (buf);
       else if (c == '\"' || c == '\\') /* escape these chars */
 	totlen++;
@@ -4628,9 +4587,7 @@ macarg1 (start, limit, depthptr, newlines, comments)
 	return bp;
       break;
     case '\\':
-      /* Traditionally, backslash makes following char not special.  */
-      if (!traditional)
-	break;
+      /* Backslash makes following char not special.  */
       if (bp + 1 < limit)
 	{
 	  bp++;
@@ -4665,7 +4622,6 @@ macarg1 (start, limit, depthptr, newlines, comments)
 	if (*bp == '\n') ++*newlines;
 	bp++;
       }
-      bp += 1;
       break;
     case '\'':
     case '\"':
@@ -4743,13 +4699,6 @@ discard_comments (start, length, newlines)
     case '\n':
       /* Duplicate the newline.  */
       *obp++ = '\n';
-      break;
-
-    case '\\':
-      if (*ibp == '\n') {
-	obp--;
-	ibp++;
-      }
       break;
 
     case '/':
@@ -4862,9 +4811,6 @@ warning (msg, arg1, arg2, arg3)
 {
   int i;
   FILE_BUF *ip = NULL;
-
-  if (inhibit_warnings)
-    return 0;
 
   for (i = indepth; i >= 0; i--)
     if (instack[i].fname != NULL) {
@@ -5252,14 +5198,12 @@ initialize_char_syntax ()
   is_hor_space['\t'] = 1;
   is_hor_space['\v'] = 1;
   is_hor_space['\f'] = 1;
-  is_hor_space['\r'] = 1;
 
   is_space[' '] = 1;
   is_space['\t'] = 1;
   is_space['\v'] = 1;
   is_space['\f'] = 1;
   is_space['\n'] = 1;
-  is_space['\r'] = 1;
 }
 
 /* Initialize the built-in macros.  */
@@ -5274,7 +5218,7 @@ initialize_builtins ()
   install ("__VERSION__", -1, T_VERSION, 0, -1);
   install ("__TIME__", -1, T_TIME, 0, -1);
   if (!traditional)
-    install ("__STDC__", -1, T_CONST, STDC_VALUE, -1);
+    install ("__STDC__", -1, T_CONST, 1, -1);
 /*  install ("__GNU__", -1, T_CONST, 1, -1);  */
 /*  This is supplied using a -D by the compiler driver
     so that it is present only when truly compiling with GNU C.  */
@@ -5307,30 +5251,6 @@ make_definition (str)
   } else if (*p != ' ') {
     error ("malformed option `-D %s'", str);
     return;
-  } else {
-    U_CHAR *q;
-    /* Copy the entire option so we can modify it.  */
-    buf = (U_CHAR *) alloca (2 * strlen (str) + 1);
-    strncpy (buf, str, p - str);
-    /* Change the = to a space.  */
-    buf[p - str] = ' ';
-    /* Scan for any backslash-newline and remove it.  */
-    p++;
-    q = &buf[p - str];
-    while (*p) {
-      if (*p == '\\' && p[1] == '\n')
-	p += 2;
-      /* Change newline chars into newline-markers.  */
-      else if (*p == '\n')
-	{
-	  *q++ = '\n';
-	  *q++ = '\n';
-	  p++;
-	}
-      else
-	*q++ = *p++;
-    }
-    *q = 0;
   }
   
   ip = &instack[++indepth];
@@ -5408,6 +5328,7 @@ deps_output (string, size)
   deps_buffer[deps_size] = 0;
 }
 
+#ifndef BSD
 #ifndef BSTRING
 
 void
@@ -5473,6 +5394,8 @@ bcmp (b1, b2, length)	/* This could be a macro! */
 #endif /* not VMS */
 }
 #endif /* not BSTRING */
+#endif /* not BSD */
+
 
 void
 fatal (str, arg)
@@ -5532,7 +5455,7 @@ char *
 xmalloc (size)
      int size;
 {
-  extern char *malloc ();
+//  extern char *malloc ();
   register char *ptr = malloc (size);
   if (ptr != 0) return (ptr);
   memory_full ();
@@ -5544,7 +5467,7 @@ xrealloc (old, size)
      char *old;
      int size;
 {
-  extern char *realloc ();
+//  extern char *realloc ();
   register char *ptr = realloc (old, size);
   if (ptr != 0) return (ptr);
   memory_full ();
@@ -5555,7 +5478,7 @@ char *
 xcalloc (number, size)
      int number, size;
 {
-  extern char *malloc ();
+// extern char *malloc ();
   register int total = number * size;
   register char *ptr = malloc (total);
   if (ptr != 0) {
@@ -5632,20 +5555,6 @@ hack_vms_include_specification (fname)
   } else {
     cp = index (fname, '/');	/* Look for the "/" */
   }
-
-  cp2 = Local; /* initialize */
-
-  /* We are trying to do a number of things here.  First of all, we are 
-     trying to hammer the filenames into a standard format, such that later 
-     processing can handle them.
-
-     If the file name contains something like [dir.], then it recognizes this
-     as a root, and strips the ".]".  Later processing will add whatever is 
-     needed to get things working properly.
-
-     If no device is specified, then the first directory name is taken to be
-     a device name (or a rooted logical).  */
-
   /* See if we found that 1st slash */
   if (cp == 0) return;		/* Nothing to do!!! */
   if (*cp != '/') return;	/* Nothing to do!!! */
@@ -5653,80 +5562,45 @@ hack_vms_include_specification (fname)
   cp1 = cp+1;
   /* If the directory spec is not rooted, we can just copy
      the UNIX filename part and we are done */
-  if (((cp - fname) > 2) && ((cp[-1] == ']') || (cp[-1] == '>'))) {
-	if (cp[-2] != '.') {
-/*
- * The VMS part ends in a "]", where the preceeding character is not a ".".
- * We assume that the rest of the specification is correct, and we splice
- * the two parts together, and go back.  Actually, given the default
- * locations for include files listed in cccp.c, we will never get here.
- * Things could change, so we leave it in...
- */
-	    strcpy (cp, cp1);	/* Non-rooted */
-	    return;             /* trailing "]/", and not ".]/" */
-	} else {
-/* 
- * The VMS part has a ".]" at the end, and this will not do.  Later 
- * processing will add a second directory spec, and this would be a syntax 
- * error.  Thus we strip the ".]", and thus merge the directory specs.
- * We also backspace cp1, so that it points to a '/'.  This inhibits the
- * generation of the 000000 root directory spec (which does not belong here
- * in this case).
- */
-	    cp -= 2;		/* Strip ".]" */
-	    cp1--; };		/* backspace */
-   } else {
-
-/* We drop in here if there is no VMS style directory specification yet.
- * If there is no device specification either, we make the first dir a
- * device and try that.  If we do not do this, then we will be essentially
- * searching the users default directory (as if they did a #include "asdf.h").
- *
- * Then all we need to do is to push a '[' into the output string.  Later
- * processing will fill this in, and close the bracket.
- */
-     if (cp[-1] != ':')		/* dev not in spec.  take first dir */
-       *cp2++ = ':';
-     *cp2++ = '[';		/* Open the directory specification */
-   }
-
- /* at this point we assume that we have the device spec, and (at least
-    the opening "[" for a directory specification.  We may have directories
-    specified already */
-
+  if (((cp - fname) > 2)
+      && ((cp[-1] == ']') || (cp[-1] == '>'))
+      && (cp[-2] != '.')) {
+    strcpy (cp, cp1);
+    return;
+  }
   /* If there are no other slashes then the filename will be
      in the "root" directory.  Otherwise, we need to add
      directory specifications. */
   if (index (cp1, '/') == 0) {
-      /* Just add "000000]" as the directory string */
-      strcpy (cp2, "000000]");
-      cp2 += strlen (cp2);
+    /* Just add "[000000]" as the directory string */
+    strcpy (Local, "[000000]");
+    cp2 = Local + strlen (Local);
   } else {
-      /* As long as there are still subdirectories to add, do them. */
-      while (index (cp1, '/') != 0) {
-	  /* If this token is "." we can ignore it */
-	  if ((cp1[0] == '.') && (cp1[1] == '/')) {
-	      cp1 += 2;
-	      continue;
-	  }
-	  /* Add a subdirectory spec. Do not duplicate "." */
-	  if (cp2[-1] != '.' && cp2[-1] != '[' && cp2[-1] != '<')
-	      *cp2++ = '.';
-	  /* If this is ".." then the spec becomes "-" */
-	  if ((cp1[0] == '.') && (cp1[1] == '.') && (cp[2] == '/')) {
-	      /* Add "-" and skip the ".." */
-	      *cp2++ = '-';
-	      cp1 += 3;
-	      continue;
-	  }
-	  /* Copy the subdirectory */
-	  while (*cp1 != '/') *cp2++= *cp1++;
-	  cp1++;		/* Skip the "/" */
+    /* Open the directory specification */
+    cp2 = Local;
+    *cp2++ = '[';
+    /* As long as there are still subdirectories to add, do them. */
+    while (index (cp1, '/') != 0) {
+      /* If this token is "." we can ignore it */
+      if ((cp1[0] == '.') && (cp1[1] == '/')) {
+	cp1 += 2;
+	continue;
       }
-      /* Close the directory specification */
-      if(cp2[-1] == '.')	/* no trailing periods */
-	  cp2--;
-      *cp2++ = ']';
+      /* Add a subdirectory spec. */
+      if (cp2 != Local+1) *cp2++ = '.';
+      /* If this is ".." then the spec becomes "-" */
+      if ((cp1[0] == '.') && (cp1[1] == '.') && (cp[2] == '/')) {
+	/* Add "-" and skip the ".." */
+	*cp2++ = '-';
+	cp1 += 3;
+	continue;
+      }
+      /* Copy the subdirectory */
+      while (*cp1 != '/') *cp2++= *cp1++;
+      cp1++;			/* Skip the "/" */
+    }
+    /* Close the directory specification */
+    *cp2++ = ']';
   }
   /* Now add the filename */
   while (*cp1) *cp2++ = *cp1++;

@@ -18,7 +18,6 @@ CFLAGS= /I. /Iconfig
 #CC = cl /Od
 CC = cl /O
 
-
 CC1OBJ = c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj version.obj \
 	tree.obj print-tree.obj stor-layout.obj fold-const.obj rtl.obj rtlanal.obj \
 	expr.obj stmt.obj expmed.obj explow.obj optabs.obj varasm.obj symout.obj \
@@ -73,7 +72,6 @@ cccp.exe: $(CCCPOBJ)
 
 cc1x.exe: $(CC1DEPS) $(CC1OBJ) $(CC1INSNOBJ) insn-flags.h insn-config.h
 	link /NODEFAULTLIB:libc.lib /NODEFAULTLIB:OLDNAMES.LIB  -out:cc1.exe $(CC1OBJ) $(CC1INSNOBJ) alloca.obj $(conlibs)
-
 
 genflags.exe: c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj \
 	version.obj tree.obj print-tree.obj stor-layout.obj fold-const.obj \
@@ -143,15 +141,14 @@ insn-out.obj: insn-out.c
 	$(CC) $(CFLAGS) /D_WIN32 /D__STDC__ /I. /Iconfig /c insn-out.c
 
 c-tab.c: c-parse.y
-#	copy /Y c-tab.k c-tab.c
 	copy /Y ..\bison-1.16\bison.simple .
 	..\bison-1.16\bison.exe  -v ./c-parse.y -o c-tab.c
-	del /Q c-tab.output
+	del /Q c-tab.output bison.simple
 
 cexp.c: cexp.y
 	copy /Y ..\bison-1.16\bison.simple .
 	..\bison-1.16\bison.exe  -v ./cexp.y -o cexp.c
-	del /Q cexp.output
+	del /Q cexp.output bison.simple
 
 xgcc.exe: gcc.obj obstack.obj alloca.obj version.obj newargcv.obj
 	$(link) $(conflags) -out:xgcc.exe gcc.obj obstack.obj alloca.obj version.obj newargcv.obj $(conlibs)

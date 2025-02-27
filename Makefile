@@ -16,7 +16,7 @@ TARG=config\$(TARGET_CPU)
 CFLAGS= /I. /Iconfig
 
 #CC = cl /Od
-CC = cl386 /u /Od
+CC = cl /O
 
 
 CC1OBJ = c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj version.obj \
@@ -82,7 +82,7 @@ genflags.exe: c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj \
 	$(link) $(conflags) -out:genflags.exe genflags.obj rtl.obj obstack.obj alloca.obj $(conlibs)
 
 %.obj: %.c
-	cl386 $(CFLAGS) /c $<
+	$(CC) $(CFLAGS) /c $<
 #	cvtomf -g $*.obj
 
 gencodes.exe: gencodes.obj rtl.obj obstack.obj alloca.obj
@@ -140,11 +140,18 @@ insn-pep.c: genpeep.exe
 
 
 insn-out.obj: insn-out.c
-	cl386 $(CFLAGS) /u /D__STDC__ /I. /Iconfig /c insn-out.c
+	$(CC) $(CFLAGS) /D_WIN32 /D__STDC__ /I. /Iconfig /c insn-out.c
 
 c-tab.c: c-parse.y
-	copy /Y c-tab.k c-tab.c
-#	..\bin\bison -v ./c-parse.y -o c-tab.c
+#	copy /Y c-tab.k c-tab.c
+	copy /Y ..\bison-1.16\bison.simple .
+	..\bison-1.16\bison.exe  -v ./c-parse.y -o c-tab.c
+	del /Q c-tab.output
+
+cexp.c: cexp.y
+	copy /Y ..\bison-1.16\bison.simple .
+	..\bison-1.16\bison.exe  -v ./cexp.y -o cexp.c
+	del /Q cexp.output
 
 xgcc.exe: gcc.obj obstack.obj alloca.obj version.obj newargcv.obj
 	$(link) $(conflags) -out:xgcc.exe gcc.obj obstack.obj alloca.obj version.obj newargcv.obj $(conlibs)
@@ -155,4 +162,4 @@ clean:
 	del /F *.exe
 	del /F insn-*
 	del /F stamp-*
-	del /F c-parse.output c-tab.c
+	del /F c-parse.output c-tab.c cexp.c

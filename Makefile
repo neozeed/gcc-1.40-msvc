@@ -16,7 +16,7 @@ TARG=config\$(TARGET_CPU)
 CFLAGS= /I. /Iconfig
 
 #CC = cl /Od
-CC = cl386 /u /Od /DTARGET_CPU=$(TARGET_CPU)
+CC = cl386 /u /Od
 
 
 CC1OBJ = c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj version.obj \
@@ -34,6 +34,32 @@ CC1DEPS = insn-flags.h insn-codes.h insn-config.h insn-emt.c insn-pep.c insn-rcg
 	insn-xrt.c insn-out.c insn-out.obj
 
 CCCPOBJ = cccp.obj cexp.obj version.obj obstack.obj alloca.obj
+
+!IF "$(TARGET_CPU)" == "i386"
+CFLAGS = $(CFLAGS) /DTARGET_CPU_I386
+!ENDIF
+
+!IF "$(TARGET_CPU)" == "i860"
+CFLAGS = $(CFLAGS) /DTARGET_CPU_I860
+!ENDIF
+
+!IF "$(TARGET_CPU)" == "m68k"
+CFLAGS = $(CFLAGS) /DTARGET_CPU_M68K
+!ENDIF
+
+!IF "$(TARGET_CPU)" == "ns32k"
+CFLAGS = $(CFLAGS) /DTARGET_CPU_NS32K
+!ENDIF
+
+!IF "$(TARGET_CPU)" == "sparc"
+# Only SPARC needs this
+CC1OBJ = $(CC1OBJ) isinf.obj
+CFLAGS = $(CFLAGS) /DTARGET_CPU_SPARC
+!ENDIF
+
+!IF "$(TARGET_CPU)" == "vax"
+CFLAGS = $(CFLAGS) /DTARGET_CPU_VAX
+!ENDIF
 
 default: cc1.exe cccp.exe xgcc.exe
 
@@ -114,7 +140,7 @@ insn-pep.c: genpeep.exe
 
 
 insn-out.obj: insn-out.c
-	cl386 /u /D__STDC__ /I. /Iconfig /c insn-out.c
+	cl386 $(CFLAGS) /u /D__STDC__ /I. /Iconfig /c insn-out.c
 
 c-tab.c: c-parse.y
 	copy /Y c-tab.k c-tab.c

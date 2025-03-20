@@ -469,7 +469,7 @@ fatal (s, v)
      char *s;
      int v;
 {
-  error (s, v);
+  error (s, v, 0);
   exit (34);
 }
 
@@ -481,7 +481,7 @@ void
 fatal_insn_not_found (insn)
      rtx insn;
 {
-  error ("The following insn was not recognizable:", 0);
+  error ("The following insn was not recognizable:", 0, 0);
   debug_rtx (insn);
   abort ();
 }
@@ -754,7 +754,7 @@ really_sorry (s, v, v2)
 
   fprintf (stderr, "sorry, not implemented: ");
   fprintf (stderr, s, v, v2);
-  fatal (" (fatal)\n");
+  fatal (" (fatal)\n",0);
 }
 
 /* More 'friendly' abort that prints the line and file.
@@ -763,7 +763,7 @@ really_sorry (s, v, v2)
 void
 fancy_abort ()
 {
-  fatal ("Internal gcc abort.");
+  fatal ("Internal gcc abort.", 0);
 }
 
 /* When `malloc.c' is compiled with `rcheck' defined,
@@ -783,7 +783,7 @@ xmalloc (size)
 {
   register int value = (int) malloc (size);
   if (value == 0)
-    fatal ("Virtual memory exhausted.");
+    fatal ("Virtual memory exhausted.", 0);
   return value;
 }
 
@@ -796,7 +796,7 @@ xrealloc (ptr, size)
 {
   int result = realloc (ptr, size);
   if (!result)
-    fatal ("Virtual memory exhausted.");
+    fatal ("Virtual memory exhausted.", 0);
   return result;
 }
 
@@ -859,7 +859,7 @@ float_signal ()
 static void
 pipe_closed ()
 {
-  fatal ("output pipe has been closed");
+  fatal ("output pipe has been closed", 0);
 }
 
 /* Compile an entire file of output from cpp, named NAME.
@@ -1175,7 +1175,7 @@ compile_file (name)
 	    && DECL_INITIAL (decl) == 0
 	    && TREE_EXTERNAL (decl)
 	    && ! TREE_PUBLIC (decl))
-	  warning_with_decl (decl, "`%s' declared but never defined");
+	  warning_with_decl (decl, "`%s' declared but never defined", 0);
 	/* Warn about statics fns or vars defined but not used,
 	   but not about inline functions
 	   since unused inline statics is normal practice.  */
@@ -1190,7 +1190,7 @@ compile_file (name)
 	       is kept in the identifier, to handle multiple
 	       external decls in different scopes.  */
 	    && ! TREE_USED (DECL_NAME (decl)))
-	  warning_with_decl (decl, "`%s' defined but not used");
+	  warning_with_decl (decl, "`%s' defined but not used", 0);
       }
   }
 
@@ -1336,7 +1336,7 @@ rest_of_decl_compilation (decl, asmspec, top_level, at_end)
 	  make_decl_rtl (decl, asmspec, top_level);
 	}
       else
-	error ("invalid register name `%s' for register variable", asmspec);
+	error ("invalid register name `%s' for register variable", asmspec, 0);
     }
 #ifdef DBX_DEBUGGING_INFO
   else if (write_symbols == DBX_DEBUG && TREE_CODE (decl) == TYPE_DECL)
@@ -1394,7 +1394,7 @@ rest_of_compilation (decl)
 		     int specd = TREE_INLINE (decl);
 		     char *lose = function_cannot_inline_p (decl);
 		     if (lose != 0 && specd)
-		       warning_with_decl (decl, lose);
+		       warning_with_decl (decl, lose, 0);
 		     if (lose == 0)
 		       save_for_inline (decl);
 		     else
@@ -1884,7 +1884,7 @@ main (argc, argv, envp)
 	    else if (!strncmp (p, "call-saved-", 11))
 	      fix_register (&p[11], 0, 0);
 	    else if (! lang_decode_option (argv[i]))
-	      error ("Invalid option `%s'", argv[i]);
+	      error ("Invalid option `%s'", argv[i], 0);
 	  }
 	else if (!strcmp (str, "noreg"))
 	  ;
@@ -1934,7 +1934,7 @@ main (argc, argv, envp)
 		if (*endp >= '0' && *endp <= '9')
 		  endp++;
 		else
-		  error ("Invalid option `%s'", argv[i]);
+		  error ("Invalid option `%s'", argv[i], 0);
 	      }
 	    warn_id_clash = 1;
 	    id_clash_len = atoi (str + 10);
@@ -1944,7 +1944,7 @@ main (argc, argv, envp)
 	else if (!strcmp (str, "a"))
 	  {
 #if !defined (BLOCK_PROFILER) || !defined (FUNCTION_BLOCK_PROFILER)
-	    warning ("`-a' option (basic block profile) not supported");
+	    warning ("`-a' option (basic block profile) not supported", 0, 0);
 #else
 	    profile_block_flag = 1;
 #endif
@@ -1988,7 +1988,7 @@ main (argc, argv, envp)
 	    asm_file_name = argv[++i];
 	  }
 	else
-	  error ("Invalid option `%s'", argv[i]);
+	  error ("Invalid option `%s'", argv[i], 0);
       }
     else
       filename = argv[i];
@@ -2054,7 +2054,7 @@ set_target_switch (name)
 	  target_flags |= target_switches[j].value;
 	return;
       }
-  error ("Invalid option `%s'", name);
+  error ("Invalid option `%s'", name, 0);
 }
 
 /* Print default target switches for -version.  */

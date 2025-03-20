@@ -324,7 +324,7 @@ convert_move (to, from, unsignedp)
 	  return;
 	}
 #endif
-      emit_library_call (gen_rtx (SYMBOL_REF, Pmode, (extending
+      emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, (extending
 						      ? "__extendsfdf2"
 						      : "__truncdfsf2")), 0,
 			 GET_MODE (to), 1,
@@ -943,12 +943,12 @@ emit_block_move (x, y, size, align)
 #endif
 
 #ifdef TARGET_MEM_FUNCTIONS
-      emit_library_call (gen_rtx (SYMBOL_REF, Pmode, "memcpy"), 0,
+      emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, "memcpy"), 0,
 			 VOIDmode, 3, XEXP (x, 0), Pmode,
 			 XEXP (y, 0), Pmode,
 			 size, Pmode);
 #else
-      emit_library_call (gen_rtx (SYMBOL_REF, Pmode, "bcopy"), 0,
+      emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, "bcopy"), 0,
 			 VOIDmode, 3, XEXP (y, 0), Pmode,
 			 XEXP (x, 0), Pmode,
 			 size, Pmode);
@@ -1032,12 +1032,12 @@ clear_storage (object, size)
   if (GET_MODE (object) == BLKmode)
     {
 #ifdef TARGET_MEM_FUNCTIONS
-      emit_library_call (gen_rtx (SYMBOL_REF, Pmode, "memset"), 0,
+      emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, "memset"), 0,
 			 VOIDmode, 3,
 			 XEXP (object, 0), Pmode, const0_rtx, Pmode,
 			 gen_rtx (CONST_INT, VOIDmode, size), Pmode);
 #else
-      emit_library_call (gen_rtx (SYMBOL_REF, Pmode, "bzero"), 0,
+      emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, "bzero"), 0,
 			 VOIDmode, 2,
 			 XEXP (object, 0), Pmode,
 			 gen_rtx (CONST_INT, VOIDmode, size), Pmode);
@@ -1410,11 +1410,11 @@ emit_push_insn (x, mode, size, align, partial, reg, extra, args_addr, args_so_fa
 	     to force it to pop the bcopy-arguments right away.  */
 	  NO_DEFER_POP;
 #ifdef TARGET_MEM_FUNCTIONS
-	  emit_library_call (gen_rtx (SYMBOL_REF, Pmode, "memcpy"), 0,
+	  emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, "memcpy"), 0,
 			     VOIDmode, 3, temp, Pmode, XEXP (xinner, 0), Pmode,
 			     size, Pmode);
 #else
-	  emit_library_call (gen_rtx (SYMBOL_REF, Pmode, "bcopy"), 0,
+	  emit_library_call ((int)gen_rtx (SYMBOL_REF, Pmode, "bcopy"), 0,
 			     VOIDmode, 3, XEXP (xinner, 0), Pmode, temp, Pmode,
 			     size, Pmode);
 #endif
@@ -1530,7 +1530,7 @@ emit_push_insn (x, mode, size, align, partial, reg, extra, args_addr, args_so_fa
    The rtx values should have been passed through protect_from_queue already.  */
 
 void
-emit_library_call (va_alist)
+emit_library_call (va_alist, ...)
      va_dcl
 {
   register va_list p;
@@ -2182,7 +2182,7 @@ save_noncopied_parts (lhs, list)
 
   for (tail = list; tail; tail = TREE_CHAIN (tail))
     if (TREE_CODE (TREE_VALUE (tail)) == TREE_LIST)
-      parts = chainon (parts, save_noncopied_parts (TREE_VALUE (tail)));
+      parts = chainon (parts, save_noncopied_parts (TREE_VALUE (tail), 0));
     else
       {
 	tree part = TREE_VALUE (tail);

@@ -260,8 +260,11 @@ make_decl_rtl (decl, asmspec, top_level)
 
 	  DECL_RTL (decl) = gen_rtx (MEM, DECL_MODE (decl),
 				     gen_rtx (SYMBOL_REF, Pmode, name));
+#if 1
+//watcom crashes here
 	  if (TREE_EXTERNAL (decl))
 	    EXTERNAL_SYMBOL_P (XEXP (DECL_RTL (decl), 0)) = 1; 
+#endif
 	  if (TREE_VOLATILE (decl))
 	    MEM_VOLATILE_P (DECL_RTL (decl)) = 1;
 	  if (TREE_READONLY (decl))

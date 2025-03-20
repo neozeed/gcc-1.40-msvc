@@ -1196,7 +1196,7 @@ stabilize_reference (ref)
    Constants, decls, types and misc nodes cannot be.  */
 
 tree
-build (va_alist)
+build (va_alist,...)
      va_dcl
 {
   register va_list p;
@@ -1242,7 +1242,7 @@ build (va_alist)
    or even garbage if their values do not matter.  */
 
 tree
-build_nt (va_alist)
+build_nt (va_alist, ...)
      va_dcl
 {
   register va_list p;

@@ -2002,8 +2002,8 @@ expand_decl (decl, cleanup)
 	}
 
       /* Variable of fixed size that goes on the stack.  */
-      DECL_RTL (decl)
-	= assign_stack_local (DECL_MODE (decl),
+      DECL_RTL (decl) 
+	= assign_stack_local (DECL_MODE (decl), (int)
 			      (TREE_INT_CST_LOW (DECL_SIZE (decl))
 			       * DECL_SIZE_UNIT (decl)
 			       + BITS_PER_UNIT - 1)

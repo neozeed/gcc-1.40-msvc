@@ -147,7 +147,7 @@ gen_exp (x)
       return;
 
     case ADDRESS:
-      fatal ("ADDRESS expression code used in named instruction pattern");
+      fatal ("ADDRESS expression code used in named instruction pattern",0 ,0);
 
     case PC:
       printf ("pc_rtx");
@@ -223,7 +223,7 @@ gen_insn (insn)
   register_constraints = 0;
   operands = max_operand_vec (insn, 1);
   if (max_dup_opno >= operands)
-    fatal ("match_dup operand number has no match_operand");
+    fatal ("match_dup operand number has no match_operand",0 ,0);
 
   /* Output the function name and argument declarations.  */
   printf ("rtx\ngen_%s (", XSTR (insn, 0));
@@ -264,9 +264,9 @@ gen_expand (expand)
   register int i;
 
   if (strlen (XSTR (expand, 0)) == 0)
-    fatal ("define_expand lacks a name");
+    fatal ("define_expand lacks a name",0 ,0);
   if (XVEC (expand, 1) == 0)
-    fatal ("define_expand for %s lacks a pattern", XSTR (expand, 0));
+    fatal ("define_expand for %s lacks a pattern", (int)XSTR (expand, 0), 0);
 
   /* Find out how many operands this function has,
      and also whether any of them have register constraints.  */
@@ -370,7 +370,7 @@ xmalloc (size)
   register int val = malloc (size);
 
   if (val == 0)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted",0 ,0);
 
   return val;
 }
@@ -382,7 +382,7 @@ xrealloc (ptr, size)
 {
   int result = realloc (ptr, size);
   if (!result)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted",0 ,0);
   return result;
 }
 
@@ -402,7 +402,7 @@ fatal (s, a1, a2)
 void
 fancy_abort ()
 {
-  fatal ("Internal gcc abort.");
+  fatal ("Internal gcc abort.",0 ,0);
 }
 
 int
@@ -418,7 +418,7 @@ main (argc, argv)
   obstack_init (rtl_obstack);
 
   if (argc <= 1)
-    fatal ("No input file name.");
+    fatal ("No input file name.",0 ,0);
 
   infile = fopen (argv[1], "r");
   if (infile == 0)

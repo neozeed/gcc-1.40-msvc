@@ -172,7 +172,7 @@ rtx change_address ();
 
 /*VARARGS2*/
 rtx
-gen_rtx (va_alist)
+gen_rtx (va_alist, ...)
      va_dcl
 {
   va_list p;
@@ -243,7 +243,7 @@ gen_rtx (va_alist)
 
 /*VARARGS1*/
 rtvec
-gen_rtvec (va_alist)
+gen_rtvec (va_alist, ...)
      va_dcl
 {
   int n, i;

@@ -425,7 +425,7 @@ try_merge_1 (old, add)
 	{
 	  old->success = merge_trees (old->success, add->success);
 	  if (old->insn_code_number >= 0 && add->insn_code_number >= 0)
-	    fatal ("Two actions at one point in tree.");
+	    fatal ("Two actions at one point in tree.",0 ,0);
 	  if (old->insn_code_number == -1)
 	    old->insn_code_number = add->insn_code_number;
 	  return 1;
@@ -976,7 +976,7 @@ xrealloc (ptr, size)
 {
   int result = realloc (ptr, size);
   if (!result)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted",0 ,0);
   return result;
 }
 
@@ -986,7 +986,7 @@ xmalloc (size)
   register int val = malloc (size);
 
   if (val == 0)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted",0 ,0);
   return val;
 }
 
@@ -1008,7 +1008,7 @@ fatal (s, a1, a2)
 void
 fancy_abort ()
 {
-  fatal ("Internal gcc abort.");
+  fatal ("Internal gcc abort.",0 ,0);
 }
 
 int
@@ -1025,7 +1025,7 @@ main (argc, argv)
   obstack_init (rtl_obstack);
 
   if (argc <= 1)
-    fatal ("No input file name.");
+    fatal ("No input file name.",0 ,0);
 
   infile = fopen (argv[1], "r");
   if (infile == 0)

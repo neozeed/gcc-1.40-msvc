@@ -41,7 +41,9 @@ enum decl_context
   FIELD,			/* Declaration inside struct or union */
   TYPENAME};			/* Typename (inside cast or sizeof)  */
 
+#ifndef NULL
 #define NULL 0
+#endif
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 #define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
 

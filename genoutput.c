@@ -113,7 +113,7 @@ void fatal ();
 void fancy_abort ();
 void error ();
 void mybcopy ();
-void mybzero ();
+void mybzero (char *b, int length);
 
 /* insns in the machine description are assigned sequential code numbers
    that are used by insn-recog.c (produced by genrecog) to communicate
@@ -389,7 +389,7 @@ scan_operands (part, this_address_p, this_strict_low)
 	max_opno = opno;
       if (max_opno >= MAX_MAX_OPERANDS)
 	error ("Too many operands (%d) in one instruction pattern.\n",
-	       max_opno + 1);
+	       max_opno + 1, 0);
       modes[opno] = GET_MODE (part);
       strict_low[opno] = this_strict_low;
       predicates[opno] = XSTR (part, 1);
@@ -410,7 +410,7 @@ scan_operands (part, this_address_p, this_strict_low)
 	max_opno = opno;
       if (max_opno >= MAX_MAX_OPERANDS)
 	error ("Too many operands (%d) in one instruction pattern.\n",
-	       max_opno + 1);
+	       max_opno + 1, 0);
       modes[opno] = GET_MODE (part);
       strict_low[opno] = 0;
       predicates[opno] = XSTR (part, 1);
@@ -463,8 +463,8 @@ void
 gen_insn (insn)
      rtx insn;
 {
-  register struct data *d = (struct data *) xmalloc (sizeof (struct data));
-  register int i;
+  struct data *d = (struct data *) xmalloc (sizeof (struct data));
+  int i;
 
   d->code_number = next_code_number++;
   if (XSTR (insn, 0)[0])
@@ -485,22 +485,22 @@ gen_insn (insn)
   max_opno = -1;
   num_dups = 0;
 
-  mybzero (constraints, sizeof constraints);
-  mybzero (op_n_alternatives, sizeof op_n_alternatives);
-  mybzero (predicates, sizeof predicates);
-  mybzero (address_p, sizeof address_p);
-  mybzero (modes, sizeof modes);
-  mybzero (strict_low, sizeof strict_low);
+  mybzero ((char *)constraints, sizeof (constraints));
+  mybzero ((char *)op_n_alternatives, sizeof (op_n_alternatives));
+  mybzero ((char *)predicates, sizeof (predicates));
+  mybzero (address_p, sizeof (address_p));
+  mybzero ((char *)modes, sizeof (modes));
+  mybzero (strict_low, sizeof (strict_low));
   for (i = 0; i < XVECLEN (insn, 1); i++)
     scan_operands (XVECEXP (insn, 1, i), 0, 0);
   d->n_operands = max_opno + 1;
   d->n_dups = num_dups;
-  mybcopy (constraints, d->constraints, sizeof constraints);
-  mybcopy (op_n_alternatives, d->op_n_alternatives, sizeof op_n_alternatives);
-  mybcopy (predicates, d->predicates, sizeof predicates);
-  mybcopy (address_p, d->address_p, sizeof address_p);
-  mybcopy (modes, d->modes, sizeof modes);
-  mybcopy (strict_low, d->strict_low, sizeof strict_low);
+  mybcopy (constraints, d->constraints, sizeof (constraints));
+  mybcopy ((char *) op_n_alternatives, (char *) d->op_n_alternatives, sizeof (op_n_alternatives));
+  mybcopy (predicates, d->predicates, sizeof (predicates));
+  mybcopy (address_p, d->address_p, sizeof (address_p));
+  mybcopy ((char *) modes, (char *) d->modes, sizeof (modes));
+  mybcopy (strict_low, d->strict_low, sizeof (strict_low));
   d->machine_info = XSTR (insn, 4);
 
   /* We need to consider only the instructions whose assembler code template
@@ -559,8 +559,8 @@ gen_peephole (peep)
   end_of_insn_data = d;
 
   max_opno = -1;
-  mybzero (constraints, sizeof constraints);
-  mybzero (op_n_alternatives, sizeof op_n_alternatives);
+  mybzero ((char *)constraints, sizeof constraints);
+  mybzero ((char *)op_n_alternatives, sizeof op_n_alternatives);
 
   /* Get the number of operands by scanning all the
      patterns of the peephole optimizer.
@@ -571,10 +571,10 @@ gen_peephole (peep)
   d->n_operands = max_opno + 1;
   d->n_dups = 0;
   mybcopy (constraints, d->constraints, sizeof constraints);
-  mybcopy (op_n_alternatives, d->op_n_alternatives, sizeof op_n_alternatives);
-  mybzero (d->predicates, sizeof predicates);
+  mybcopy ((char *) op_n_alternatives, (char *) d->op_n_alternatives, sizeof op_n_alternatives);
+  mybzero ((char *)d->predicates, sizeof predicates);
   mybzero (d->address_p, sizeof address_p);
-  mybzero (d->modes, sizeof modes);
+  mybzero ((char *)d->modes, sizeof modes);
   mybzero (d->strict_low, sizeof strict_low);
   d->machine_info = XSTR (peep, 3);
 
@@ -634,17 +634,17 @@ gen_expand (insn)
   /* Scan the operands to get the specified predicates and modes,
      since expand_binop needs to know them.  */
 
-  mybzero (predicates, sizeof predicates);
-  mybzero (modes, sizeof modes);
+  mybzero ((char *)predicates, sizeof predicates);
+  mybzero ((char *)modes, sizeof modes);
   if (XVEC (insn, 1))
     for (i = 0; i < XVECLEN (insn, 1); i++)
       scan_operands (XVECEXP (insn, 1, i), 0, 0);
   d->n_operands = max_opno + 1;
   mybcopy (predicates, d->predicates, sizeof predicates);
-  mybcopy (modes, d->modes, sizeof modes);
+  mybcopy ((char *) modes,(char *) d->modes, (int) sizeof modes);
 
   mybzero (d->constraints, sizeof constraints);
-  mybzero (d->op_n_alternatives, sizeof op_n_alternatives);
+  mybzero ((char *)d->op_n_alternatives, sizeof op_n_alternatives);
   mybzero (d->address_p, sizeof address_p);
   mybzero (d->strict_low, sizeof strict_low);
 
@@ -660,7 +660,7 @@ xmalloc (size)
   register int val = malloc (size);
 
   if (val == 0)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted", 0, 0);
   return val;
 }
 
@@ -671,7 +671,7 @@ xrealloc (ptr, size)
 {
   int result = realloc (ptr, size);
   if (!result)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted", 0, 0);
   return result;
 }
 
@@ -710,7 +710,7 @@ fatal (s, a1, a2)
 void
 fancy_abort ()
 {
-  fatal ("Internal gcc abort.");
+  fatal ("Internal gcc abort.", 0, 0);
 }
 
 void
@@ -735,7 +735,7 @@ main (argc, argv)
   obstack_init (rtl_obstack);
 
   if (argc <= 1)
-    fatal ("No input file name.");
+    fatal ("No input file name.", 0, 0);
 
   infile = fopen (argv[1], "r");
   if (infile == 0)

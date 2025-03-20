@@ -172,7 +172,7 @@ xmalloc (size)
   register int val = malloc (size);
 
   if (val == 0)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted",0 ,0);
 
   return val;
 }
@@ -184,7 +184,7 @@ xrealloc (ptr, size)
 {
   int result = realloc (ptr, size);
   if (!result)
-    fatal ("virtual memory exhausted");
+    fatal ("virtual memory exhausted",0 ,0);
   return result;
 }
 
@@ -204,7 +204,7 @@ fatal (s, a1, a2)
 void
 fancy_abort ()
 {
-  fatal ("Internal gcc abort.");
+  fatal ("Internal gcc abort.",0 ,0);
 }
 
 int
@@ -220,7 +220,7 @@ main (argc, argv)
   obstack_init (rtl_obstack);
 
   if (argc <= 1)
-    fatal ("No input file name.");
+    fatal ("No input file name.",0 ,0);
 
   infile = fopen (argv[1], "r");
   if (infile == 0)

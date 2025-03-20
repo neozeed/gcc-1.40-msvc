@@ -43,7 +43,8 @@ char *tree_code_name[] = {
 
 extern char *mode_name[];
 
-void print_node ();
+//void print_node ();
+void print_node (FILE *file,char *prefix,tree node, int indent);
 
 /* Define the hash table of nodes already seen.
    Such nodes are not repeated; brief cross-references are used.  */
@@ -355,7 +356,7 @@ print_node (file, prefix, node, indent)
 	  fprintf (file, " precision %d", TYPE_PRECISION (node));
 	  print_node (file, "min", TYPE_MIN_VALUE (node), indent + 4);
 	  print_node (file, "max", TYPE_MAX_VALUE (node), indent + 4);
-	  print_node (file, "values", TYPE_VALUES (node));
+	  print_node (file, "values", TYPE_VALUES (node),0);
 	}
       else if (TREE_CODE (node) == REAL_TYPE)
 	fprintf (file, " precision %d", TYPE_PRECISION (node));

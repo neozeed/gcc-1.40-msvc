@@ -162,7 +162,7 @@ static int current_sym_nchars;
 #define CONTIN
 #endif
 
-void dbxout_types ();
+void dbxout_types (register tree types);
 void dbxout_tags ();
 void dbxout_args ();
 void dbxout_symbol ();
@@ -591,7 +591,7 @@ dbxout_symbol (decl, local)
 
   if (local == 0)
     {
-      dbxout_tags (gettags ());
+      dbxout_tags ((tree)gettags ());
       dbxout_types (get_permanent_types ());
     }
 

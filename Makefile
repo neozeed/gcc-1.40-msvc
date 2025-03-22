@@ -1,6 +1,5 @@
 # Nmake macros for building Windows 32-Bit apps
 CPU=i386
-!include <ntwin32.mak>
 
 TARGET_CPU=i386
 #TARGET_CPU=i860
@@ -17,6 +16,7 @@ CFLAGS= /I. /Iconfig
 
 #CC = cl /Od
 CC = cl /O
+link = link
 
 CC1OBJ = c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj version.obj \
 	tree.obj print-tree.obj stor-layout.obj fold-const.obj rtl.obj rtlanal.obj \
@@ -71,7 +71,7 @@ cccp.exe: $(CCCPOBJ)
 	$(link) $(conflags) -out:cccp.exe $(CCCPOBJ) $(conlibs)
 
 cc1x.exe: $(CC1DEPS) $(CC1OBJ) $(CC1INSNOBJ) insn-flags.h insn-config.h
-	link /NODEFAULTLIB:libc.lib /NODEFAULTLIB:OLDNAMES.LIB  -out:cc1.exe $(CC1OBJ) $(CC1INSNOBJ) alloca.obj $(conlibs)
+	$(link) $(conflags) /NODEFAULTLIB:libc.lib /NODEFAULTLIB:OLDNAMES.LIB  -out:cc1.exe $(CC1OBJ) $(CC1INSNOBJ) alloca.obj $(conlibs)
 
 genflags.exe: c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj \
 	version.obj tree.obj print-tree.obj stor-layout.obj fold-const.obj \

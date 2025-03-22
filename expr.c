@@ -1700,7 +1700,7 @@ emit_library_call (va_alist, ...)
      cse'ing of library calls could delete a call and leave the pop.  */
   NO_DEFER_POP;
   emit_call_1 (fun, get_identifier (XSTR (orgfun, 0)), args_size,
-	       FUNCTION_ARG (args_so_far, VOIDmode, void_type_node, 1),
+	       (struct rtx_def *) FUNCTION_ARG (args_so_far, VOIDmode, void_type_node, 1),
 	       outmode != VOIDmode ? hard_libcall_value (outmode) : 0,
 	       old_inhibit_defer_pop + 1, use_insns);
   OK_DEFER_POP;

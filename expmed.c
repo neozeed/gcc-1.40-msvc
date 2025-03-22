@@ -590,9 +590,9 @@ store_split_bit_field (op0, bitsize, bitpos, value, align)
   else
     {
       part1 = extract_fixed_bit_field (SImode, value, 0, bitsize_1,
-				       BITS_PER_WORD - bitsize, 0, 1, valalign);
+				       BITS_PER_WORD - bitsize, (struct rtx_def *) 0, 1, valalign);
       part2 = extract_fixed_bit_field (SImode, value, 0, bitsize_2,
-				       BITS_PER_WORD - bitsize_2, 0, 1, valalign);
+				       BITS_PER_WORD - bitsize_2, (struct rtx_def *) 0, 1, valalign);
     }
 #else
   /* PART1 gets the less significant part.  */
@@ -1291,7 +1291,7 @@ extract_split_bit_field (op0, bitsize, bitpos, unsignedp, align)
   /* Shift the more significant part up to fit above the other part.  */
 #ifdef BYTES_BIG_ENDIAN
   part1 = expand_shift (LSHIFT_EXPR, SImode, part1,
-			build_int_2 (bitsize_2, 0), 0, 1);
+			build_int_2 (bitsize_2, 0), (struct rtx_def *) 0, 1);
 #else
   part2 = expand_shift (LSHIFT_EXPR, SImode, part2,
 			build_int_2 (bitsize_1, 0), (struct rtx_def *) 0, 1);

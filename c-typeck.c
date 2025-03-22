@@ -3276,7 +3276,7 @@ store_init_value (decl, init)
 
   /* Digest the specified initializer into an expression.  */
 
-  value = digest_init (type, init, 0);
+  value = digest_init (type, init, (union tree_node **)0);
 
   /* Store the expression if valid; else report error.  */
 
@@ -3438,11 +3438,11 @@ digest_init (type, init, tail)
 	}
 
       if (raw_constructor)
-	return process_init_constructor (type, init, 0);
+	return process_init_constructor (type, init, (union tree_node **) 0);
       else if (tail != 0)
 	{
 	  *tail = old_tail_contents;
-	  return process_init_constructor (type, 0, tail);
+	  return process_init_constructor (type, (union tree_node **) 0, tail);
 	}
     }
 
@@ -3482,18 +3482,18 @@ digest_init (type, init, tail)
   if (code == ARRAY_TYPE || code == RECORD_TYPE)
     {
       if (raw_constructor)
-	return process_init_constructor (type, init, 0);
+	return process_init_constructor (type, init, (union tree_node **) 0);
       else if (tail != 0)
 	{
 	  *tail = old_tail_contents;
-	  return process_init_constructor (type, 0, tail);
+	  return process_init_constructor (type, (union tree_node **) 0, tail);
 	}
       else if (flag_traditional)
 	/* Traditionally one can say `char x[100] = 0;'.  */
 	return process_init_constructor (type,
 					 build_nt (CONSTRUCTOR, 0,
 						   tree_cons (0, init, 0)),
-					 0);
+					 (union tree_node **) 0);
     }
 
   error ("invalid initializer");

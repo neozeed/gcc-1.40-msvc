@@ -1591,7 +1591,7 @@ emit_library_call (va_alist, ...)
 	       
 	       && ! ((CONSTANT_P (val) || GET_CODE (val) == CONST_DOUBLE)
 		     && LEGITIMATE_CONSTANT_P (val)))
-	val = force_operand (val, 0);
+	val = force_operand (val, (struct rtx_def *) 0);
 
       argvec[count].value = val;
       argvec[count].mode = mode;
@@ -1681,7 +1681,7 @@ emit_library_call (va_alist, ...)
   if (! no_queue)
     emit_queue ();
 
-  fun = prepare_call_address (fun, 0);
+  fun = prepare_call_address (fun, (struct rtx_def *) 0);
 
   /* Any regs containing parms remain in use through the call.  */
   start_sequence ();
@@ -1729,7 +1729,7 @@ expand_assignment (to, from, want_value, suggest_reg)
   /* Don't crash if the lhs of the assignment was erroneous.  */
 
   if (TREE_CODE (to) == ERROR_MARK)
-    return expand_expr (from, 0, VOIDmode, 0);
+    return expand_expr (from, (struct rtx_def *) 0, VOIDmode, (enum expand_modifier) 0);
 
   /* Assignment of a structure component needs special treatment
      if the structure component's rtx is not simply a MEM.
@@ -1794,7 +1794,7 @@ expand_assignment (to, from, want_value, suggest_reg)
       if (mode1 == BImode && want_value)
 	tem = stabilize_reference (tem);
 
-      to_rtx = expand_expr (tem, 0, VOIDmode, 0);
+      to_rtx = expand_expr (tem, (struct rtx_def *) 0, VOIDmode, 0);
       if (volstruct)
 	{
 	  if (GET_CODE (to_rtx) == MEM)
@@ -1818,7 +1818,7 @@ expand_assignment (to, from, want_value, suggest_reg)
      Don't re-expand if it was expanded already (in COMPONENT_REF case).  */
 
   if (to_rtx == 0)
-    to_rtx = expand_expr (to, 0, VOIDmode, 0);
+    to_rtx = expand_expr (to, (struct rtx_def *) 0, VOIDmode, 0);
 
   /* Compute FROM and store the value in the rtx we got.  */
 
@@ -1871,7 +1871,7 @@ store_expr (exp, target, suggest_reg)
        So copy the value through a temporary and use that temp
        as the result.  */
     {
-      temp = expand_expr (exp, 0, GET_MODE (target), 0);
+      temp = expand_expr (exp, (struct rtx_def *) 0, GET_MODE (target), 0);
       if (GET_MODE (temp) != BLKmode && GET_MODE (temp) != VOIDmode)
 	temp = copy_to_reg (temp);
       dont_return_target = 1;
@@ -2060,7 +2060,7 @@ store_field (target, bitsize, bitpos, mode, exp, value_mode, unsignedp, align,
     {
       store_bit_field (target, bitsize, bitpos,
 		       mode,
-		       expand_expr (exp, 0, VOIDmode, 0),
+		       expand_expr (exp, (struct rtx_def *) 0, VOIDmode, 0),
 		       align, total_size);
       if (value_mode != VOIDmode)
 	return extract_bit_field (target, bitsize, bitpos, unsignedp,
@@ -3266,17 +3266,17 @@ expand_expr (exp, target, tmode, modifier)
 	  /* If other operand is a comparison COMP, treat it as COMP ? 1 : 0 */
 	  if (TREE_CODE (TREE_OPERAND (exp, 1)) != COND_EXPR)
 	    {
-	      do_jump (TREE_OPERAND (exp, 1), op0, 0);
+	      do_jump (TREE_OPERAND (exp, 1), op0, (struct rtx_def * )0);
 	      thenv = const1_rtx;
 	    }
 	  else if (integer_zerop (TREE_OPERAND (TREE_OPERAND (exp, 1), 2)))
 	    {
-	      do_jump (TREE_OPERAND (TREE_OPERAND (exp, 1), 0), op0, 0);
+	      do_jump (TREE_OPERAND (TREE_OPERAND (exp, 1), 0), op0, (struct rtx_def *) 0);
 	      thenexp = TREE_OPERAND (TREE_OPERAND (exp, 1), 1);
 	    }
 	  else
 	    {
-	      do_jump (TREE_OPERAND (TREE_OPERAND (exp, 1), 0), 0, op0);
+	      do_jump (TREE_OPERAND (TREE_OPERAND (exp, 1), 0), (struct rtx_def *) 0, op0);
 	      thenexp = TREE_OPERAND (TREE_OPERAND (exp, 1), 2);
 	    }
 
@@ -3655,7 +3655,7 @@ preexpand_calls (exp)
       if (CALL_EXPR_RTL (exp) == 0
 	  && TYPE_MODE (TREE_TYPE (exp)) != BLKmode
 	  && ! RETURN_IN_MEMORY (TREE_TYPE (exp)))
-	CALL_EXPR_RTL (exp) = expand_call (exp, 0, 0);
+	CALL_EXPR_RTL (exp) = expand_call (exp, (struct rtx_def *) 0, 0);
       return;
 
     case COMPOUND_EXPR:
@@ -5081,7 +5081,7 @@ jumpifnot (exp, label)
      tree exp;
      rtx label;
 {
-  do_jump (exp, label, 0);
+  do_jump (exp, label, (struct rtx_def *) 0);
 }
 
 /* Generate code to evaluate EXP and jump to LABEL if the value is nonzero.  */
@@ -5091,7 +5091,7 @@ jumpif (exp, label)
      tree exp;
      rtx label;
 {
-  do_jump (exp, 0, label);
+  do_jump (exp, (struct rtx_def *) 0, label);
 }
 
 /* Generate code to evaluate EXP and jump to IF_FALSE_LABEL if

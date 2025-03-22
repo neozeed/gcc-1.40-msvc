@@ -490,7 +490,7 @@ void
 expand_goto (body)
      tree body;
 {
-  expand_goto_internal (body, label_rtx (body), 0);
+  expand_goto_internal (body, label_rtx (body), (struct rtx_def *) 0);
 }
 
 /* Generate RTL code for a `goto' statement with target label BODY.
@@ -527,7 +527,7 @@ expand_goto_internal (body, label, last_insn)
 	    stack_level = block->data.block.stack_level;
 	  /* Execute the cleanups for blocks we are exiting.  */
 	  if (block->data.block.cleanups != 0)
-	    expand_cleanups (block->data.block.cleanups, 0);
+	    expand_cleanups (block->data.block.cleanups, (union tree_node *) 0);
 	}
 
       if (stack_level)
@@ -1860,7 +1860,7 @@ expand_end_bindings (vars, mark_ends, dont_jump_in)
     {
       /* Perform any cleanups associated with the block.  */
 
-      expand_cleanups (thisblock->data.block.cleanups, 0);
+      expand_cleanups (thisblock->data.block.cleanups, (union tree_node *) 0);
 
       /* Restore the stack level.  */
 
@@ -2732,7 +2732,7 @@ expand_end_case (orig_index)
 		 If program flow could reach the end of the
 		 decision tree an unconditional jump to the
 		 default code is emitted.  */
-	      balance_case_nodes (&thiscase->data.case_stmt.case_list, 0);
+	      balance_case_nodes (&thiscase->data.case_stmt.case_list, (struct case_node *) 0);
 	      emit_case_nodes (index, thiscase->data.case_stmt.case_list,
 			       default_label, unsignedp);
 	      emit_jump_if_reachable (default_label);
@@ -3507,10 +3507,10 @@ fixup_var_refs_1 (var, x, insn)
       /* First do special simplification of bit-field references.  */
       if (GET_CODE (SET_DEST (x)) == SIGN_EXTRACT
 	  || GET_CODE (SET_DEST (x)) == ZERO_EXTRACT)
-	optimize_bit_field (x, insn, 0);
+	optimize_bit_field (x, insn, (struct rtx_def **) 0);
       if (GET_CODE (SET_SRC (x)) == SIGN_EXTRACT
 	  || GET_CODE (SET_SRC (x)) == ZERO_EXTRACT)
-	optimize_bit_field (x, insn, 0);
+	optimize_bit_field (x, insn, (struct rtx_def **) 0);
 
       {
 	rtx dest = SET_DEST (x);

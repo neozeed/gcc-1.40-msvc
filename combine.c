@@ -261,7 +261,7 @@ combine_instructions (f, nregs)
 	  /* Try this insn with each insn it links back to.  */
 
 	  for (links = LOG_LINKS (insn); links; links = XEXP (links, 1))
-	    if (try_combine (insn, XEXP (links, 0), 0))
+	    if (try_combine (insn, XEXP (links, 0), (struct rtx_def *) 0))
 	      goto retry;
 
 	  /* Try each sequence of three linked insns ending with this one.  */
@@ -286,7 +286,7 @@ combine_instructions (f, nregs)
 	      && GET_CODE (PATTERN (prev)) == SET
 	      && GET_CODE (SET_DEST (PATTERN (prev))) == CC0)
 	    {
-	      if (try_combine (insn, prev, 0))
+	      if (try_combine (insn, prev, (struct rtx_def *) 0))
 		goto retry;
 
 	      if (GET_CODE (prev) != NOTE)

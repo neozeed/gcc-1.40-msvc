@@ -918,7 +918,7 @@ reload (first, global, dumpfile)
 		     of the new reload reg we have found.  */
 
 		  something_changed
-		    |= new_spill_reg (i, class, max_needs, 0,
+		    |= new_spill_reg (i, class, max_needs, (int *) 0,
 				      global, dumpfile);
 		}
 	      else
@@ -952,7 +952,7 @@ reload (first, global, dumpfile)
 				    if (potential_reload_regs[idx] == j + k)
 				      break;
 				  something_changed
-				    |= new_spill_reg (idx, class, max_needs, 0,
+				    |= new_spill_reg (idx, class, max_needs, (int *) 0,
 						      global, dumpfile);
 				}
 

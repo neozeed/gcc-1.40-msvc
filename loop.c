@@ -2796,7 +2796,7 @@ strength_reduce (scan_start, end, loop_top, insn_count,
 	      rtx temp;
 
 	      record_giv (v, p, src_regno, dest_regno, mult_val, add_val, benefit,
-			  forces, forces2, DEST_REG, maybe_never, 0, loop_end);
+			  forces, forces2, DEST_REG, maybe_never, (struct rtx_def **) 0, loop_end);
 
 	      /* Skip the consecutive insns, if there are any.  */
 	      for (count = v->consec - 1; count >= 0; count--)

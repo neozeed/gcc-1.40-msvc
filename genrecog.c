@@ -157,7 +157,7 @@ make_insn_sequence (insn)
       PUT_MODE (x, VOIDmode);
     }
 
-  last = add_to_sequence (x, 0, "");
+  last = add_to_sequence (x, (struct decision *) 0, "");
 
   if (c_test[0])
     last->c_test = c_test;

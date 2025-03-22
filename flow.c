@@ -822,7 +822,7 @@ life_analysis (f, nregs)
   for (i = 0; i < n_basic_blocks; i++)
     {
       propagate_block (basic_block_live_at_end[i],
-		       basic_block_head[i], basic_block_end[i], 1, 0, i);
+		       basic_block_head[i], basic_block_end[i], 1, (long *) 0, i);
 #ifdef USE_C_ALLOCA
       alloca (0);
 #endif
@@ -1114,7 +1114,7 @@ propagate_block (old, first, last, final, significant, bnum)
 	      && libcall_dead_p (PATTERN (insn), old))
 	    {
 	      /* Mark the dest reg as `significant'.  */
-	      mark_set_regs (old, dead, PATTERN (insn), 0, significant);
+	      mark_set_regs (old, dead, PATTERN (insn), (struct rtx_def *) 0, significant);
 
 	      insn = XEXP (note, 0);
 	      prev = PREV_INSN (insn);

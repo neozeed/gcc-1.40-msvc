@@ -516,10 +516,10 @@ store_fixed_bit_field (op0, offset, bitsize, bitpos, value, struct_align)
 	value = expand_bit_and (mode, value,
 				gen_rtx (CONST_INT, VOIDmode,
 					 (1 << bitsize) - 1),
-				0);
+				(struct rtx_def *) 0);
       if (bitpos > 0)
 	value = expand_shift (LSHIFT_EXPR, mode, value,
-			      build_int_2 (bitpos, 0), 0, 1);
+			      build_int_2 (bitpos, 0), (struct rtx_def *) 0, 1);
     }
 
   /* Now clear the chosen bits in OP0,
@@ -606,9 +606,9 @@ store_split_bit_field (op0, bitsize, bitpos, value, align)
   else
     {
       part1 = extract_fixed_bit_field (SImode, value, 0, bitsize_1, 0,
-				       0, 1, valalign);
+				       (struct rtx_def *) 0, 1, valalign);
       part2 = extract_fixed_bit_field (SImode, value, 0, bitsize_2,
-				       bitsize_1, 0, 1, valalign);
+				       bitsize_1, (struct rtx_def *) 0, 1, valalign);
     }
 #endif
 
@@ -1294,7 +1294,7 @@ extract_split_bit_field (op0, bitsize, bitpos, unsignedp, align)
 			build_int_2 (bitsize_2, 0), 0, 1);
 #else
   part2 = expand_shift (LSHIFT_EXPR, SImode, part2,
-			build_int_2 (bitsize_1, 0), 0, 1);
+			build_int_2 (bitsize_1, 0), (struct rtx_def *) 0, 1);
 #endif
 
   /* Combine the two parts with bitwise or.  This works
@@ -1307,9 +1307,9 @@ extract_split_bit_field (op0, bitsize, bitpos, unsignedp, align)
     return result;
   /* Signed bit field: sign-extend with two arithmetic shifts.  */
   result = expand_shift (LSHIFT_EXPR, SImode, result,
-			 build_int_2 (BITS_PER_WORD - bitsize, 0), 0, 0);
+			 build_int_2 (BITS_PER_WORD - bitsize, 0), (struct rtx_def *) 0, 0);
   return expand_shift (RSHIFT_EXPR, SImode, result,
-		       build_int_2 (BITS_PER_WORD - bitsize, 0), 0, 0);
+		       build_int_2 (BITS_PER_WORD - bitsize, 0), (struct rtx_def *) 0, 0);
 }
 
 /* Add INC into TARGET.  */

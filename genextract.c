@@ -77,7 +77,7 @@ gen_insn (insn)
      down to the walking point.  */
 
   if (XVECLEN (insn, 1) == 1)
-    walk_rtx (XVECEXP (insn, 1, 0), 0);
+    walk_rtx (XVECEXP (insn, 1, 0), (struct link *) 0);
   else
     for (i = XVECLEN (insn, 1) - 1; i >= 0; i--)
       {

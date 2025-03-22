@@ -101,7 +101,7 @@ gen_peephole (peep)
       /* Walk the insn's pattern, remembering at all times the path
 	 down to the walking point.  */
 
-      match_rtx (XVECEXP (peep, 0, i), 0, insn_code_number);
+      match_rtx (XVECEXP (peep, 0, i), (struct link *) 0, insn_code_number);
     }
 
   /* We get this far if the pattern matches.

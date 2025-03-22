@@ -291,13 +291,13 @@ global_alloc (file)
 	       for this pseudo-reg.  If that fails, try any reg.  */
 	    if (N_REG_CLASSES > 1)
 	      {
-		find_reg (allocno_order[i], 0, 0, 0,
+		find_reg (allocno_order[i], (short *) 0, 0, 0,
 			  hard_reg_preferences[allocno_order[i]]);
 		if (reg_renumber[allocno_reg[allocno_order[i]]] >= 0)
 		  continue;
 	      }
 	    if (!reg_preferred_or_nothing (allocno_reg[allocno_order[i]]))
-	      find_reg (allocno_order[i], 0, 1, 0,
+	      find_reg (allocno_order[i], (short *) 0, 1, 0,
 			hard_reg_preferences[allocno_order[i]]);
 	  }
     }

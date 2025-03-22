@@ -1510,7 +1510,7 @@ output_asm_insn (template, operands)
 	     The PRINT_OPERAND macro decides what is actually done.  */
 #ifdef PRINT_OPERAND_PUNCT_VALID_P
 	  else if (PRINT_OPERAND_PUNCT_VALID_P (*p))
-	    output_operand (0, *p++);
+	    output_operand ( (struct rtx_def *) 0, *p++);
 #endif
 	  else
 	    output_operand_lossage ("invalid %%-code");

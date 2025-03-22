@@ -1284,7 +1284,7 @@ find_reloads (insn, replace, ind_ok, live_known, reload_reg_p)
       address_reloaded[i] = 0;
       if (constraints[i][0] == 'p')
 	{
-	  find_reloads_address (VOIDmode, 0,
+	  find_reloads_address (VOIDmode, (struct rtx_def **) 0,
 				recog_operand[i], recog_operand_loc[i],
 				recog_operand[i]);
 	  substed_operand[i] = recog_operand[i] = *recog_operand_loc[i];
@@ -2244,7 +2244,7 @@ find_reloads_toplev (x)
 	{
 	  x = gen_rtx (MEM, GET_MODE (x),
 		       reg_equiv_address[regno]);
-	  find_reloads_address (GET_MODE (x), 0,
+	  find_reloads_address (GET_MODE (x), (struct rtx_def **) 0,
 				XEXP (x, 0),
 				&XEXP (x, 0), x);
 	}
@@ -2294,7 +2294,7 @@ find_reloads_toplev (x)
 #endif
 	  addr = plus_constant (reg_equiv_address[regno], offset);
 	  x = gen_rtx (MEM, GET_MODE (x), addr);
-	  find_reloads_address (GET_MODE (x), 0,
+	  find_reloads_address (GET_MODE (x), (struct rtx_def **) 0,
 				XEXP (x, 0),
 				&XEXP (x, 0), x);
 	}

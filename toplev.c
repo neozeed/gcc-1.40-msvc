@@ -1151,7 +1151,7 @@ compile_file (name)
 		|| TREE_USED (decl)
 		|| TREE_PUBLIC (decl)
 		|| TREE_ADDRESSABLE (decl))
-	      rest_of_decl_compilation (decl, 0, 1, 1);
+	      rest_of_decl_compilation (decl, (char *)0, 1, 1);
 	    /* Otherwise maybe mention them just for the debugger.  */
 #ifdef DBX_DEBUGGING_INFO
 	    else if (DECL_INITIAL (decl) && write_symbols == DBX_DEBUG)

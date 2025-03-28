@@ -1297,8 +1297,13 @@ emit_push_insn (x, mode, size, align, partial, reg, extra, args_addr, args_so_fa
 	  && (move_by_pieces_ninsns ((unsigned) INTVAL (size) - used, align)
 	      < MOVE_RATIO)
 	  && PUSH_ROUNDING (INTVAL (size)) == INTVAL (size))
-	move_by_pieces (gen_rtx (MEM, BLKmode, gen_push_operand ()), xinner,
-			INTVAL (size) - used, align);
+//Is this a typo?
+//
+//	move_by_pieces (gen_rtx (MEM, BLKmode, gen_push_operand ()), xinner,
+//			INTVAL (size) - used, align);
+//
+	move_by_pieces (gen_rtx (MEM, BLKmode, gen_push_operand (), xinner,
+			INTVAL (size) - used, align));
       else
 #endif /* PUSH_ROUNDING */
 	{
@@ -4752,9 +4757,15 @@ expand_call (exp, target, ignore)
 	  = emit_move_insn (target, gen_rtx (MEM, TYPE_MODE (TREE_TYPE (exp)),
 					     copy_to_reg (valreg)));
       else
-	emit_block_move (target, gen_rtx (MEM, BLKmode, copy_to_reg (valreg)),
+//	emit_block_move (target, gen_rtx (MEM, BLKmode, copy_to_reg (valreg)),
+//			 expr_size (exp),
+//			 TYPE_ALIGN (TREE_TYPE (exp)) / BITS_PER_UNIT);
+	emit_block_move (target, 
+			 gen_rtx (MEM, BLKmode, 
+				copy_to_reg (valreg),0,0),
 			 expr_size (exp),
 			 TYPE_ALIGN (TREE_TYPE (exp)) / BITS_PER_UNIT);
+
     }
   else if (target && GET_MODE (target) == TYPE_MODE (TREE_TYPE (exp)))
     {

@@ -1784,7 +1784,7 @@ expand_divmod (rem_flag, code, mode, op0, op1, target, unsignedp)
   /* Produce the quotient.  */
   if (log >= 0)
     temp = expand_shift (RSHIFT_EXPR, mode, adjusted_op0,
-			 build_int_2 (exact_log2 (INTVAL (op1)), 0),
+			 build_int_2 (exact_log2 (INTVAL (op1)),0,0),
 			 target, unsignedp);
   else if (rem_flag && !mod_insn_no_good)
     /* If producing quotient in order to subtract for remainder,

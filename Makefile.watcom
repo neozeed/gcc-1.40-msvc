@@ -155,6 +155,6 @@ clean:
 	del /F *.exe
 	del /F insn-*
 	del /F stamp-*
-	del /F c-parse.output c-tab.c cexp.c
+	del /F c-parse.output c-tab.c c-tab.out cexp.c
 	del /F *.err
 	

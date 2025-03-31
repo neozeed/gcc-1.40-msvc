@@ -978,7 +978,7 @@ execute ()
 		prog = commands[j].prog;
 
 	    if ((status & 0x7F) != 0)
-	      fatal ("Program %s got fatal signal %d.", prog, (status & 0x7F));
+	      fatal ("Program %s got fatal signal %d.", prog, (char*)(status & 0x7F));
 	    if (((status & 0xFF00) >> 8) >= MIN_FATAL_STATUS)
 	      ret_code = -1;
 	  }
@@ -2041,7 +2041,7 @@ save_string (s, len)
 pfatal_with_name (name)
      char *name;
 {
-  extern int errno, sys_nerr;
+//  extern int errno, sys_nerr;
   extern char *sys_errlist[];
   char *s;
 
@@ -2055,7 +2055,7 @@ pfatal_with_name (name)
 perror_with_name (name)
      char *name;
 {
-  extern int errno, sys_nerr;
+//  extern int errno, sys_nerr;
   extern char *sys_errlist[];
   char *s;
 
@@ -2069,7 +2069,7 @@ perror_with_name (name)
 perror_exec (name)
      char *name;
 {
-  extern int errno, sys_nerr;
+//  extern int errno, sys_nerr;
   extern char *sys_errlist[];
   char *s;
 

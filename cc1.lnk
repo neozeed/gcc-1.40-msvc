@@ -1,0 +1,5 @@
+file c-tab.obj,c-decl.obj,c-typeck.obj,c-conv.obj,toplev.obj,version.obj,tree.obj,print-tree.obj,stor-layout.obj
+file fold-const.obj,rtl.obj,rtlanal.obj,expr.obj,stmt.obj,expmed.obj,explow.obj,optabs.obj,varasm.obj,symout.obj
+file dbxout.obj,sdbout.obj,emit-rtl.obj,integrate.obj,jump.obj,cse.obj,loop.obj,flow.obj,stupid.obj,combine.obj
+file regclass.obj,local-alloc.obj,global-alloc.obj,reload.obj,reload1.obj,caller-save.obj,final.obj,recog.obj
+file pragma.obj,errno.obj,insn-emt.obj,insn-xrt.obj,insn-out.obj,insn-pep.obj,insn-rcg.obj,obstack.obj,alloca.obj

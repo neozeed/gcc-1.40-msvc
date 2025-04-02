@@ -9,10 +9,18 @@ TARGET_CPU=i386
 #TARGET_CPU=vax
 
 TARG=config\$(TARGET_CPU)
+
+# Watcom Flags
 #
-#CFLAGS= /Ic:\xenixnt\h /I. /Iconfig
-#CFLAGS= /Ic:\msvc32s\include /I. /Iconfig
+# 386 stack calling conventions
+# force enums to be type int
+# set debug output format Watcom
+# pack structure members with alignment 8
+#
+#
 CFLAGS=  -3s -ei -hw -zp=8 /I. /Iconfig
+#zpack 8 isnt on watcom 10
+#CFLAGS=  -3s -ei -hw /I. /Iconfig
 
 CC = wcc386
 
@@ -65,49 +73,46 @@ default: cc1.exe cccp.exe xgcc.exe
 cc1: cc1.exe
 
 cc1.exe: $(CC1DEPS) $(CC1OBJ) $(CC1INSNOBJ) insn-flags.h insn-config.h
-	$(link) $(conflags) -out:cc1.exe $(CC1OBJ) $(CC1INSNOBJ) alloca.obj $(conlibs)
+	wlink system nt @cc1.lnk name cc1.exe
 
 cccp.exe: $(CCCPOBJ)
 	$(link) $(conflags) -out:cccp.exe $(CCCPOBJ) $(conlibs)
 
-cc1x.exe: $(CC1DEPS) $(CC1OBJ) $(CC1INSNOBJ) insn-flags.h insn-config.h
-	$(link) $(conflags) /NODEFAULTLIB:libc.lib /NODEFAULTLIB:OLDNAMES.LIB  -out:cc1.exe $(CC1OBJ) $(CC1INSNOBJ) alloca.obj $(conlibs)
 
 genflags.exe: c-tab.obj c-decl.obj c-typeck.obj c-conv.obj toplev.obj \
 	version.obj tree.obj print-tree.obj stor-layout.obj fold-const.obj \
 	rtl.obj rtlanal.obj genflags.obj obstack.obj \
 	genflags.obj rtl.obj obstack.obj alloca.obj
-	$(link) $(conflags) -out:genflags.exe genflags.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file genflags.obj,rtl.obj,obstack.obj,alloca.obj system nt name genflags.exe
 
 .c.obj:
 	$(CC) $(CFLAGS) $<
 
 gencodes.exe: gencodes.obj rtl.obj obstack.obj alloca.obj
-	$(link) $(conflags) -out:gencodes.exe gencodes.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file gencodes.obj,rtl.obj,obstack.obj,alloca.obj system nt name gencodes.exe
 
 genconfig.exe: genconfig.obj rtl.obj obstack.obj alloca.obj
-	$(link) $(conflags) -out:genconfig.exe genconfig.obj rtl.obj obstack.obj alloca.obj $(conlibs)
-
+	wlink file genconfig.obj,rtl.obj,obstack.obj,alloca.obj system nt name genconfig.exe
 
 genemit.exe: expr.obj stmt.obj expmed.obj explow.obj optabs.obj varasm.obj \
 	symout.obj dbxout.obj sdbout.obj emit-rtl.obj genemit.obj \
 	insn-config.h insn-flags.h
-	$(link) $(conflags) -out:genemit.exe genemit.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file genemit.obj,rtl.obj,obstack.obj,alloca.obj system nt name genemit.exe
 
 genpeep.exe: insn-emt.obj integrate.obj jump.obj cse.obj loop.obj \
 	flow.obj stupid.obj combine.obj regclass.obj local-alloc.obj \
 	global-alloc.obj reload.obj reload1.obj caller-save.obj genpeep.obj \
 	rtl.obj obstack.obj alloca.obj
-	$(link) $(conflags) -out:genpeep.exe genpeep.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file genpeep.obj,rtl.obj,obstack.obj,alloca.obj system nt name genpeep.exe
 
 genrecog.exe: insn-pep.obj final.obj recog.obj genrecog.obj alloca.obj
-	$(link) $(conflags) -out:genrecog.exe genrecog.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file genrecog.obj,rtl.obj,obstack.obj,alloca.obj system nt name genrecog.exe
 
 genextract.exe: insn-rcg.obj genextract.obj alloca.obj
-	$(link) $(conflags) -out:genextract.exe genextract.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file genextract.obj,rtl.obj,obstack.obj,alloca.obj system nt name genextract.exe
 
 genoutput.exe: insn-xrt.obj genoutput.obj genoutput.obj rtl.obj obstack.obj alloca.obj
-	$(link) $(conflags) -out:genoutput.exe genoutput.obj rtl.obj obstack.obj alloca.obj $(conlibs)
+	wlink file genoutput.obj,rtl.obj,obstack.obj,alloca.obj system nt name genoutput.exe
 
 expr.obj: insn-flags.h insn-config.h insn-codes.h
 
@@ -135,7 +140,6 @@ insn-emt.c: genemit.exe
 insn-pep.c: genpeep.exe
 	genpeep $(TARG).md > insn-pep.c
 
-
 c-tab.c: c-parse.y
 	copy /Y ..\bison-1.16\bison.simple .
 	..\bison-1.16\bison.exe  -v ./c-parse.y -o c-tab.c
@@ -147,8 +151,7 @@ cexp.c: cexp.y
 	del /Q cexp.output bison.simple
 
 xgcc.exe: gcc.obj obstack.obj alloca.obj version.obj newargcv.obj mktemp.obj
-	$(link) $(conflags) -out:xgcc.exe gcc.obj obstack.obj alloca.obj version.obj newargcv.obj mktemp.obj$(conlibs)
-	
+	wlink file gcc.obj,obstack.obj,alloca.obj,version.obj,newargcv.obj,mktemp.obj system nt name xgcc.exe
 
 clean:
 	del /F *.obj

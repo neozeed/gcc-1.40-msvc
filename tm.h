@@ -27,3 +27,8 @@
 #ifdef TARGET_CPU_VAX
 #include "config\tm-vax.h"
 #endif
+
+//mips
+#ifdef TARGET_CPU_MIPS
+#include "config\tm-mips.h"
+#endif

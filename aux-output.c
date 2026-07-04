@@ -28,3 +28,7 @@
 #include "config\out-vax.c"
 #endif
 
+//mips
+#ifdef TARGET_CPU_MIPS
+#include "config\out-mips.c"
+#endif

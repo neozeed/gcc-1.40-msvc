@@ -7,6 +7,7 @@ TARGET_CPU=i386
 #TARGET_CPU=ns32k
 #TARGET_CPU=sparc
 #TARGET_CPU=vax
+#TARGET_CPU=mips
 
 TARG=config\$(TARGET_CPU)
 #
@@ -58,6 +59,10 @@ CFLAGS = $(CFLAGS) /DTARGET_CPU_SPARC
 
 !IF "$(TARGET_CPU)" == "vax"
 CFLAGS = $(CFLAGS) /DTARGET_CPU_VAX
+!ENDIF
+
+!IF "$(TARGET_CPU)" == "mips"
+CFLAGS = $(CFLAGS) /DTARGET_CPU_MIPS
 !ENDIF
 
 default: cc1.exe cccp.exe xgcc.exe
